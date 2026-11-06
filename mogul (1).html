@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketing Mogul</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow+Condensed:wght@600;700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Palette and type. Layout idea: a 1920x1080 projector stage (scoreboard | board | turn panel) and a separate phone page. */
+:root{
+  --felt:#12483F; --felt-dark:#0B2B26; --cream:#F3EEDD; --ink:#1B1B1B; --red:#C8282D; --yellow:#FFD23F;
+  --sage:#CFE3CF; --mute:#4A4A4A; --line:#CFC8B0; --good:#1E7A4C; --bad:#B3261E;
+  --display:'Alfa Slab One',Georgia,serif; --body:'Rubik',system-ui,Arial,sans-serif; --cond:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--felt);color:var(--ink);font-family:var(--body);overflow:hidden}
+button{font-family:var(--body);cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:4px solid var(--yellow);outline-offset:2px}
+.shp{display:inline-block;flex:none}
+
+/* ---------- projector stage ---------- */
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;padding:24px 40px;display:flex;flex-direction:column;gap:16px}
+.banner{display:flex;align-items:stretch;background:var(--ink);border:4px solid var(--yellow);border-radius:12px;overflow:hidden;height:80px;flex:none}
+.banner .step{background:var(--yellow);color:var(--ink);font-family:var(--display);font-size:28px;padding:0 30px;display:flex;align-items:center;white-space:nowrap}
+.banner .msg{flex:1;color:var(--cream);font-size:34px;font-weight:600;padding:0 28px;display:flex;align-items:center}
+.banner .hint{color:var(--sage);font-size:20px;padding:0 28px;display:flex;align-items:center;white-space:nowrap}
+.row{display:flex;gap:26px;flex:1;min-height:0;justify-content:center}
+.panel{background:var(--cream);border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--felt-dark);padding:18px 20px}
+.panel h2{margin:0 0 10px;font-family:var(--display);font-weight:400;font-size:28px}
+.lcol{width:380px;display:flex;flex-direction:column;gap:18px}
+.rcol{width:430px;display:flex;flex-direction:column;gap:18px}
+.team{display:flex;align-items:center;gap:12px;padding:8px 12px;border:2px solid var(--ink);border-radius:10px;background:#fff;margin-bottom:8px}
+.team.on{background:var(--yellow)}
+.team .nm{font-weight:700;font-size:22px;line-height:1.1;overflow-wrap:anywhere}
+.team .sub{font-size:17px;color:var(--mute)}
+.team .cash{font-weight:700;font-size:26px;text-align:right}
+.tag{display:inline-block;background:var(--ink);color:var(--cream);font-size:14px;font-weight:700;letter-spacing:1px;border-radius:4px;padding:2px 8px}
+.setrow{display:flex;align-items:center;gap:12px;margin:4px 0;font-size:18px;font-weight:600}
+.setrow .sw{width:36px;height:22px;border:2px solid var(--ink);border-radius:4px;flex:none}
+.setrow .ct{margin-left:auto;font-weight:500;color:var(--mute);font-size:17px;text-align:right}
+
+/* board */
+.board{position:relative;width:936px;height:936px;flex:none;display:grid;grid-template-columns:126px 684px 126px;grid-template-rows:126px 684px 126px;background:var(--cream);border:4px solid var(--ink);box-shadow:7px 7px 0 var(--felt-dark);margin-top:0}
+.strip{display:flex}
+.strip.v{flex-direction:column}
+.tile{flex:1 1 0;min-width:0;min-height:0;display:flex;border:1px solid var(--ink);background:var(--cream);position:relative;overflow:hidden}
+.tile.top,.tile.bottom{flex-direction:column}
+.tile.left,.tile.right{flex-direction:row}
+.tile .band{flex:none}
+.tile.top .band{height:20px;order:2;border-top:1px solid var(--ink)}
+.tile.bottom .band{height:20px;order:0;border-bottom:1px solid var(--ink)}
+.tile.left .band{width:20px;order:2;border-left:1px solid var(--ink)}
+.tile.right .band{width:20px;order:0;border-right:1px solid var(--ink)}
+.tile .tb{flex:1;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;padding:5px 3px 4px;min-width:0}
+.tile .nm{font-family:var(--cond);font-weight:700;font-size:16px;line-height:1.02;text-transform:uppercase;letter-spacing:.2px}
+.tile.left .nm,.tile.right .nm{font-size:18px}
+.tile .pr{font-family:var(--cond);font-weight:700;font-size:20px;display:flex;align-items:center;gap:5px}
+.tile .tok{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;min-height:20px}
+.tile.left .tb,.tile.right .tb{align-items:stretch;text-align:left;padding:5px 8px}
+.tile.left .tb .bot,.tile.right .tb .bot{display:flex;justify-content:space-between;align-items:center}
+.tile.card{align-items:center;justify-content:center}
+.tile.card .tb{justify-content:center;gap:6px}
+.tile.hot{outline:5px solid var(--yellow);outline-offset:-5px;z-index:2;background:#FFF6CC}
+.tile.full{box-shadow:inset 0 0 0 4px #E3A800}
+.corner{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:1px solid var(--ink);background:var(--cream);padding:6px;position:relative}
+.corner .cn{font-family:var(--display);font-size:20px;line-height:1.05}
+.corner .cs{font-size:14px;font-weight:600;margin-top:2px}
+.corner .tok{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-top:4px}
+.corner.hot{outline:5px solid var(--yellow);outline-offset:-5px;background:#FFF6CC}
+.centre{grid-column:2;grid-row:2;background:var(--sage);border:1px solid var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:50px 36px 40px;text-align:center}
+.logo{background:var(--red);color:#fff;border:4px solid var(--ink);border-radius:8px;padding:14px 30px;font-family:var(--display);font-size:62px;line-height:1;letter-spacing:1px;box-shadow:6px 6px 0 var(--ink)}
+.sub1{margin-top:18px;font-size:23px;font-weight:700;letter-spacing:3px}
+.clock{font-family:var(--display);font-size:72px;line-height:1}
+.clock small{display:block;font-family:var(--body);font-size:21px;font-weight:600;letter-spacing:2px;margin-top:6px}
+.decks{display:flex;gap:36px}
+.deck{width:240px;height:130px;border:4px solid var(--ink);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:6px 6px 0 var(--ink)}
+.deck b{font-family:var(--display);font-weight:400;font-size:27px}
+.deck span{font-size:17px;font-weight:600;margin-top:4px}
+.joinpill{background:#fff;border:3px solid var(--ink);border-radius:10px;padding:10px 22px;font-size:21px;font-weight:600}
+.joinpill b{font-family:var(--display);font-weight:400;letter-spacing:5px;font-size:30px}
+
+/* overlays on the board */
+.ov{position:absolute;z-index:5;background:var(--cream);border:4px solid var(--ink);box-shadow:7px 7px 0 var(--ink);display:flex;flex-direction:column;overflow:hidden}
+.ov.full{inset:0}
+.ov.mid{left:126px;top:126px;width:684px;height:684px;border-width:4px}
+.ov .hd{padding:14px 28px;border-bottom:4px solid var(--ink);display:flex;justify-content:space-between;align-items:center}
+.ov .hd .a{font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.ov .hd .b{font-family:var(--display);font-size:38px;line-height:1.05}
+.ov .hd .c{font-family:var(--display);font-size:50px}
+.ov .bd{flex:1;padding:24px 34px;display:flex;flex-direction:column;gap:20px;min-height:0}
+.q{font-size:40px;line-height:1.26;font-weight:500}
+.q.long{font-size:32px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:auto}
+.opt{display:flex;align-items:center;gap:14px;border:3px solid var(--ink);border-radius:12px;background:#fff;padding:14px 18px;font-size:29px;font-weight:600;line-height:1.15;min-height:84px}
+.opt i{font-style:normal;font-family:var(--display);width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:25px;flex:none}
+.blankbox{margin-top:auto;border:3px dashed var(--ink);border-radius:12px;padding:20px 24px;font-size:28px;background:#fff;line-height:1.3}
+.chips{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:999px;padding:5px 14px 5px 8px;background:#fff;font-size:19px;font-weight:600}
+.chip.ok{background:#CBEBD6}
+.timerbar{height:14px;border:2px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden;flex:1}
+.timerbar div{height:100%;background:var(--red)}
+.ans{border:3px solid var(--ink);border-radius:12px;background:#CBEBD6;padding:16px 22px;font-size:29px;font-weight:700}
+.opt.right{background:#CBEBD6;border-color:var(--good)}
+.exp{font-size:25px;line-height:1.35}
+.big{font-family:var(--display);font-size:52px;line-height:1.05}
+.tone-good .hd{background:#CBEBD6}.tone-bad .hd{background:#F6C9C4}.tone-warn .hd{background:#FFE9A8}.tone-neutral .hd{background:var(--sage)}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
+.sc{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:10px;background:#fff;padding:5px 10px;font-size:19px;font-weight:600;flex-wrap:wrap}
+.sc.me{background:#FFF1B8;border-width:3px}
+.sc .n{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc .m{font-family:var(--display);font-size:24px;margin-left:auto}
+.sc em{font-style:normal;font-weight:800}.sc em.up{color:#1E7B3F}.sc em.dn{color:#B3261E}
+.sc .w{flex-basis:100%;font-size:15px;font-weight:500;color:var(--mute)}
+.cardface{border:4px solid var(--ink);border-radius:14px;padding:20px 24px;background:#fff;font-size:30px;line-height:1.3;font-weight:500}
+
+/* controls */
+.btn{display:block;width:100%;border:4px solid var(--ink);border-radius:12px;background:var(--red);color:#fff;font-weight:700;font-size:32px;letter-spacing:1px;padding:16px 10px;box-shadow:0 0 0 6px var(--yellow),5px 5px 0 6px var(--ink);margin:6px 0}
+.btn:disabled{background:#E4DFCC;border-color:#8A8468;color:#6B6652;box-shadow:none}
+.btn.good{background:var(--good)}.btn.bad{background:var(--bad)}
+.btn.alt{background:#fff;color:var(--ink);box-shadow:0 0 0 6px var(--yellow),5px 5px 0 6px var(--ink)}
+.btn.alt:disabled{background:#E4DFCC}
+.btn.sm{font-size:22px;padding:11px 8px;box-shadow:none}
+.btn.quiet{background:#fff;color:var(--ink);box-shadow:none;border-width:3px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:6px 0}
+.steps{display:flex;flex-direction:column;gap:7px;margin:12px 0 14px}
+.st{display:flex;align-items:center;gap:12px;padding:8px 12px;border:3px solid var(--line);border-radius:10px;background:#E4DFCC;color:#6B6652;font-size:23px;font-weight:600}
+.st b{width:32px;height:32px;border-radius:50%;background:#8A8468;color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+.st.now{background:var(--yellow);color:var(--ink);border-color:var(--ink)}.st.now b{background:var(--ink);color:var(--yellow)}
+.st.done{background:#fff;color:var(--ink);border-color:var(--line)}.st.done b{background:var(--good)}
+.dice{display:flex;gap:18px;justify-content:center;margin:6px 0 4px;min-height:96px}
+.die{width:92px;height:92px;background:#fff;border:4px solid var(--ink);border-radius:16px;display:flex;align-items:center;justify-content:center}
+.die.empty{border-style:dashed;opacity:.5;font-family:var(--display);font-size:42px}
+.die.roll{animation:wob .18s infinite alternate}
+@keyframes wob{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+.log{font-size:19px;line-height:1.3;padding:7px 0;border-bottom:1px solid var(--line)}
+.notice{border:3px solid var(--good);background:#E3F4EA;border-radius:10px;padding:12px 14px;font-size:20px;line-height:1.3}
+.hot-pulse{animation:pulse 1.1s infinite alternate}
+@keyframes pulse{from{filter:none}to{filter:brightness(1.15)}}
+@media (prefers-reduced-motion:reduce){.die.roll,.hot-pulse{animation:none}}
+.link{background:none;border:none;color:var(--sage);text-decoration:underline;font-size:18px;padding:6px}
+#net{position:absolute;left:14px;bottom:8px;font-size:16px;color:var(--sage);z-index:20}
+
+/* setup, lobby, end */
+.screen{flex:1;display:flex;gap:34px;justify-content:center;align-items:flex-start;padding-top:10px}
+.hero{width:760px}
+.hero .logo{display:inline-block;font-size:76px}
+.pill{display:inline-flex;gap:0;border:3px solid var(--ink);border-radius:10px;overflow:hidden;background:#fff}
+.pill button{border:none;background:#fff;font-size:26px;font-weight:700;padding:10px 20px;border-right:2px solid var(--ink)}
+.pill button:last-child{border-right:none}
+.pill button.on{background:var(--yellow)}
+.field{display:flex;align-items:center;gap:12px;margin:8px 0}
+.field input{flex:1;font-family:var(--body);font-size:24px;font-weight:600;padding:9px 12px;border:3px solid var(--ink);border-radius:8px;background:#fff}
+.lbl{font-size:20px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px}
+.code{font-family:var(--display);font-size:190px;line-height:1;letter-spacing:14px;color:var(--red);text-shadow:4px 4px 0 var(--ink)}
+.seat{display:flex;align-items:center;gap:14px;padding:12px 16px;border:3px solid var(--ink);border-radius:10px;background:#fff;margin-bottom:10px;font-size:27px;font-weight:700}
+.seat.in{background:#CBEBD6}.seat .s2{margin-left:auto;font-size:20px;font-weight:600;color:var(--mute)}
+.podium{display:flex;align-items:flex-end;gap:22px;justify-content:center;margin:20px 0}
+.pod{width:230px;border:4px solid var(--ink);border-radius:12px 12px 0 0;background:#fff;text-align:center;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pod .rk{font-family:var(--display);font-size:56px}.pod .pn{font-weight:700;font-size:24px}.pod .nw{font-size:26px;font-weight:700}
+table.res{width:100%;border-collapse:collapse;font-size:24px}
+table.res th,table.res td{padding:9px 10px;border-bottom:2px solid var(--line);text-align:left}
+table.res td.n,table.res th.n{text-align:right}
+.modal{position:absolute;inset:0;z-index:30;background:rgba(11,43,38,.82);display:flex;align-items:center;justify-content:center}
+.modal .panel{width:900px;padding:30px 36px}
+.modal ol{font-size:30px;line-height:1.45;padding-left:38px;margin:10px 0 22px}
+
+/* ---------- phone ---------- */
+#phone{position:absolute;inset:0;overflow:auto;display:none;flex-direction:column;background:var(--felt);color:var(--cream)}
+.ph-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px 10px}
+.ph-top .who{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;min-width:0}
+.ph-top .who span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ph-top .cash{font-family:var(--display);font-size:28px}
+.ph-card{margin:6px 14px 0;background:var(--cream);color:var(--ink);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--felt-dark);overflow:hidden;display:flex;flex-direction:column}
+.ph-card .h{padding:12px 16px;border-bottom:3px solid var(--ink)}
+.ph-card .h small{display:block;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.ph-card .h b{font-family:var(--display);font-weight:400;font-size:24px}
+.ph-card .b{padding:16px;display:flex;flex-direction:column;gap:14px}
+.ph-q{font-size:21px;line-height:1.4;font-weight:500}
+.ph-opt{display:flex;align-items:center;gap:12px;min-height:66px;width:100%;text-align:left;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font-size:21px;font-weight:600;padding:10px 14px;box-shadow:3px 3px 0 var(--ink)}
+.ph-opt i{font-style:normal;font-family:var(--display);width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:19px;flex:none}
+.ph-opt.sel{background:var(--yellow)}
+.ph-opt.ok{background:#CBEBD6;border-color:var(--good)}
+.ph-opt:disabled{opacity:.6;box-shadow:none}
+.ph-btn{width:100%;min-height:64px;border:3px solid var(--ink);border-radius:14px;background:var(--red);color:#fff;font-size:22px;font-weight:700;letter-spacing:1px}
+.ph-btn:disabled{background:#B9B39B;color:#4b4738}
+.ph-in{width:100%;font-family:var(--display);font-size:46px;letter-spacing:10px;text-align:center;text-transform:uppercase;padding:12px;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink)}
+.ph-note{margin:14px 18px 22px;text-align:center;font-size:16px;color:var(--sage);line-height:1.4}
+.ph-seat{display:flex;align-items:center;gap:14px;min-height:68px;width:100%;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);font-size:22px;font-weight:700;padding:10px 14px;text-align:left}
+.ph-seat:disabled{opacity:.45}
+.ph-big{font-family:var(--display);font-size:34px;line-height:1.1}
+.ph-sub{font-size:19px;line-height:1.4}
+.ph-timer{height:12px;border:2px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden}
+.ph-timer div{height:100%;background:var(--red)}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="phone"></div>
+<div id="net"></div>
+
+<script>
+/* ===================== data and engine ===================== */
+const CFG = {
+  "name": "Marketing Mogul",
+  "startCash": 1500,
+  "launchBonus": 200,
+  "rentRate": 0.1,
+  "setMultiplier": 2,
+  "defaultTimeLimitMinutes": 45,
+  "questionSeconds": 30,
+  "minTeams": 2,
+  "maxTeams": 6,
+  "chapters": {
+    "research": {"name": "Research Revealed", "color": "#7B2D3B"},
+    "message": {"name": "Mastering the Message", "color": "#7CC4EE"},
+    "demand": {"name": "Driving Demand", "color": "#E36CA5"},
+    "social": {"name": "Social Savvy", "color": "#F08A24"},
+    "pr": {"name": "PR Power Plays", "color": "#C8282D"},
+    "sponsor": {"name": "Sponsorships & Sneaky Placements", "color": "#F2C230"}
+  },
+  "spaces": [
+    {"i":0,"kind":"launch","name":"Launch"},
+    {"i":1,"kind":"question","chapter":"research","price":200,"name":"Insight Alley"},
+    {"i":2,"kind":"card","deck":"pressRelease","name":"Press Release"},
+    {"i":3,"kind":"question","chapter":"research","price":400,"name":"Survey Street"},
+    {"i":4,"kind":"card","deck":"pressRelease","name":"Press Release"},
+    {"i":5,"kind":"question","chapter":"research","price":600,"name":"Focus Group Lane"},
+    {"i":6,"kind":"question","chapter":"research","price":800,"name":"Data Drive"},
+    {"i":7,"kind":"card","deck":"marketTrend","name":"Market Trend"},
+    {"i":8,"kind":"question","chapter":"research","price":1000,"name":"Panel Plaza"},
+    {"i":9,"kind":"question","chapter":"message","price":200,"name":"Slogan Street"},
+    {"i":10,"kind":"recall","name":"Product Recall"},
+    {"i":11,"kind":"question","chapter":"message","price":400,"name":"Tagline Terrace"},
+    {"i":12,"kind":"question","chapter":"message","price":600,"name":"Jingle Junction"},
+    {"i":13,"kind":"question","chapter":"message","price":800,"name":"Copy Court"},
+    {"i":14,"kind":"question","chapter":"message","price":1000,"name":"Creative Close"},
+    {"i":15,"kind":"question","chapter":"demand","price":200,"name":"Demand Drive"},
+    {"i":16,"kind":"question","chapter":"demand","price":400,"name":"Funnel Way"},
+    {"i":17,"kind":"card","deck":"pressRelease","name":"Press Release"},
+    {"i":18,"kind":"question","chapter":"demand","price":600,"name":"Reach Road"},
+    {"i":19,"kind":"question","chapter":"demand","price":800,"name":"Conversion Court"},
+    {"i":20,"kind":"study","name":"Study Break"},
+    {"i":21,"kind":"question","chapter":"demand","price":1000,"name":"Launch Lane"},
+    {"i":22,"kind":"card","deck":"marketTrend","name":"Market Trend"},
+    {"i":23,"kind":"question","chapter":"social","price":200,"name":"Hashtag Heights"},
+    {"i":24,"kind":"question","chapter":"social","price":400,"name":"Follower Fields"},
+    {"i":25,"kind":"question","chapter":"social","price":600,"name":"Viral Valley"},
+    {"i":26,"kind":"question","chapter":"social","price":800,"name":"Feed Row"},
+    {"i":27,"kind":"question","chapter":"social","price":1000,"name":"Story Square"},
+    {"i":28,"kind":"question","chapter":"pr","price":200,"name":"Press Place"},
+    {"i":29,"kind":"question","chapter":"pr","price":400,"name":"Spin Street"},
+    {"i":30,"kind":"goToRecall","name":"Go to Recall"},
+    {"i":31,"kind":"question","chapter":"pr","price":600,"name":"Headline Hill"},
+    {"i":32,"kind":"question","chapter":"pr","price":800,"name":"Briefing Blvd"},
+    {"i":33,"kind":"question","chapter":"pr","price":1000,"name":"Reputation Row"},
+    {"i":34,"kind":"question","chapter":"sponsor","price":200,"name":"Arena Avenue"},
+    {"i":35,"kind":"question","chapter":"sponsor","price":400,"name":"Banner Blvd"},
+    {"i":36,"kind":"question","chapter":"sponsor","price":600,"name":"Logo Landing"},
+    {"i":37,"kind":"question","chapter":"sponsor","price":800,"name":"Stadium Square"},
+    {"i":38,"kind":"card","deck":"marketTrend","name":"Market Trend"},
+    {"i":39,"kind":"question","chapter":"sponsor","price":1000,"name":"Premiere Place"}
+  ],
+  "decks": {
+    "marketTrend": [
+      {"id":"mt1","text":"One of your posts goes viral. Collect $100.","effect":{"type":"cash","amount":100}},
+      {"id":"mt2","text":"A trade-show lead turns into a big order. Collect $150.","effect":{"type":"cash","amount":150}},
+      {"id":"mt3","text":"A rival's campaign wins market share. Pay $100.","effect":{"type":"cash","amount":-100}},
+      {"id":"mt4","text":"Your new product is ready. Advance to Launch and collect $200.","effect":{"type":"advanceToLaunch"}}
+    ],
+    "pressRelease": [
+      {"id":"pr1","text":"A glowing review runs in the news. Collect $100.","effect":{"type":"cash","amount":100}},
+      {"id":"pr2","text":"Your brand wins an industry award. Collect $200.","effect":{"type":"cash","amount":200}},
+      {"id":"pr3","text":"A packaging issue draws a regulator's fine. Pay $150.","effect":{"type":"cash","amount":-150}},
+      {"id":"pr4","text":"A crisis hits the headlines. Go to Recall (do not collect $200).","effect":{"type":"goToRecall"}}
+    ]
+  }
+};
+const QS = {
+  "_note": "chapter + price decide which board space a question belongs to. 'weakFit' marks questions whose chapter is a judgement call: please review. 'deckSlide' is the question slide in Marketing_Jeopardy__Exam_4_.pptx. Question text and answers come from the deck; explanations are drafts for review.",
+  "questions": [
+    {"id":"q01","chapter":"research","price":200,"deckSlide":21,"type":"tf","prompt":"A Marketing Information System (MIS) helps organizations gather, analyze, and distribute data that supports marketing decision-making.","options":["True","False"],"answerIndex":0,"explanation":"An MIS collects, analyzes and distributes information so managers can make marketing decisions."},
+    {"id":"q02","chapter":"research","price":400,"deckSlide":23,"type":"blank","prompt":"The first step in the marketing research process is to _________, which ensures the research addresses the correct problem or opportunity.","answerText":"Define the problem or opportunity","explanation":"Research starts by defining the problem or opportunity; otherwise the study can answer the wrong question."},
+    {"id":"q03","chapter":"research","price":600,"deckSlide":25,"type":"mc","prompt":"A company wants to use qualitative research techniques, including focus groups and in-depth interviews, to explore consumer feelings and opinions. However, it is still struggling to define the exact problem to carry out an in-depth study. What type of research is the company conducting?","options":["Descriptive","Causal","Exploratory","Quantitative"],"answerIndex":2,"explanation":"Exploratory research uses qualitative methods to clarify a problem that is not yet well defined."},
+    {"id":"q04","chapter":"research","price":800,"deckSlide":37,"type":"mc","prompt":"A global apparel brand notices a decline in sales and wants to understand if a change in price or product features would lead to higher customer satisfaction and increased purchases. The company conducts an experiment, offering different pricing and feature combinations to two separate customer groups, while controlling all other variables. What type of research design is this company using?","options":["Exploratory Research","Descriptive Research","Causal (Experimental) Research","Observational Research"],"answerIndex":2,"explanation":"Causal (experimental) research changes one variable while controlling the others to test cause and effect.","note":"Deck had this in the second block; placed in Research."},
+    {"id":"q05","chapter":"research","price":1000,"deckSlide":29,"type":"blank","prompt":"A multinational beverage company launches a new energy drink but fails to gain market share. In its post-launch review, it discovers that poor sampling in its pre-launch surveys led to data that didn't accurately reflect the target market's preferences. This error in the _________ selection step of the marketing research process resulted in _________ error, ultimately causing a failed launch.","answerText":"Sample; Sampling","explanation":"A sample that does not represent the target market creates sampling error, which makes the results unreliable."},
+
+    {"id":"q06","chapter":"message","price":200,"deckSlide":31,"type":"mc","prompt":"Which of the following is NOT considered part of the promotional mix in IMC?","options":["Advertising","Public Relations","Direct Marketing","Product Development"],"answerIndex":3,"explanation":"The promotional mix is how a firm communicates; product development belongs to the product side of the marketing mix."},
+    {"id":"q07","chapter":"message","price":400,"deckSlide":51,"type":"mc","prompt":"In a communication process, which of the following factors is not the cause of interference?","options":["Poor Reception","Poor Print Quality","Problems with server","None of the above"],"answerIndex":3,"explanation":"Interference (noise) is anything that distorts a message. All three listed causes qualify, so 'none of the above' is correct."},
+    {"id":"q08","chapter":"message","price":600,"deckSlide":61,"type":"mc","prompt":"A company launches two advertising campaigns for its new luxury electric car. Campaign A emphasizes the advanced battery technology, superior mileage, and cost savings over time. Campaign B highlights the feeling of prestige, freedom, and environmental pride owners will experience. Which statement BEST describes the primary communication appeals used in these campaigns?","options":["Campaign A uses an emotional appeal, while Campaign B uses a rational appeal.","Both Campaign A and Campaign B use rational appeals, but focus on different features.","Campaign A uses a rational appeal, focusing on logical benefits, while Campaign B uses an emotional appeal, targeting feelings and status.","Campaign A uses an emotional appeal by focusing on technology, and Campaign B uses a rational appeal by focusing on environmental benefits."],"answerIndex":2,"explanation":"Rational appeals argue with facts and benefits; emotional appeals target feelings such as prestige and pride."},
+    {"id":"q09","chapter":"message","price":800,"deckSlide":33,"type":"blank","prompt":"_________ marketing refers to customized messages delivered to a specific individual or small group, often through direct mail, email, or personalized ads.","answerText":"Direct Marketing","explanation":"Direct marketing sends customized messages to specific individuals or small groups."},
+    {"id":"q10","chapter":"message","price":1000,"deckSlide":63,"type":"mc","prompt":"A skincare brand launches a new campaign where a trusted dermatologist explains the scientific benefits of the product, including clinical trial results and proven outcomes. The ad includes before-and-after images of actual users to demonstrate effectiveness. Which creative execution style is primarily being used in this advertisement?","options":["Slice-of-Life","Scientific Evidence","Testimonial","Lifestyle"],"answerIndex":1,"explanation":"Scientific evidence ads rely on data, trials and demonstrations to prove the product works."},
+
+    {"id":"q11","chapter":"demand","price":200,"deckSlide":41,"type":"mc","prompt":"In IMC, in terms of how quickly a message can be created and sent out, which media is the most suitable?","options":["Television","Newspaper","Magazines","Social"],"answerIndex":3,"explanation":"Social media posts can be created and published in minutes; print and TV have long lead times."},
+    {"id":"q12","chapter":"demand","price":400,"deckSlide":43,"type":"mc","prompt":"Which of the following media has the lowest reach among potential audience?","options":["Television","Social Media","Direct Response","Newspaper"],"answerIndex":3,"explanation":"Per the chapter, newspaper reaches the smallest potential audience of these four."},
+    {"id":"q13","chapter":"demand","price":600,"deckSlide":55,"type":"mc","prompt":"Which of the following is a primary disadvantage of using newspapers as an advertising medium?","options":["Limited geographic reach and lack of audience targeting","Short life span and declining readership among younger demographics","High production costs and inability to convey detailed information","Excessive lead time required to place ads and low message flexibility"],"answerIndex":1,"explanation":"A newspaper is read once and discarded, and younger audiences read it less."},
+    {"id":"q14","chapter":"demand","price":800,"deckSlide":39,"type":"mc","prompt":"A smartphone company introduces a pull strategy to increase consumer demand at the retail level. Which of the following tactics BEST exemplifies a pull strategy?","options":["Offering volume discounts to retailers","Running national television ads and influencer campaigns to generate consumer interest","Providing financial incentives to salespeople to promote the product","Supplying retailers with free display stands and promotional materials"],"answerIndex":1,"explanation":"A pull strategy builds demand among consumers so they ask retailers for the product. The other options push through the channel."},
+    {"id":"q15","chapter":"demand","price":1000,"deckSlide":49,"type":"mc","prompt":"A pharmaceutical company launches a new over-the-counter (OTC) allergy medication. It chooses to educate doctors and pharmacists about the product's effectiveness, offers volume discounts to retailers, and provides incentives for in-store promotions. At the same time, it runs national television campaigns and digital ads aimed at consumers, encouraging them to ask for the product by name at pharmacies. Which best describes the company's overall promotional strategy?","options":["Pure push strategy","Pure pull strategy","A hybrid strategy","A misaligned strategy"],"answerIndex":2,"explanation":"Trade incentives are push and consumer advertising is pull; using both is a hybrid strategy."},
+
+    {"id":"q16","chapter":"social","price":200,"deckSlide":57,"type":"mc","prompt":"A fitness apparel brand runs an Instagram campaign encouraging followers to share workout photos wearing their gear, using a branded hashtag. The most creative posts are featured on the company's official page and rewarded with discounts. What two key social media marketing strategies is the company using in this campaign?","options":["Paid advertising and influencer endorsements","User-generated content and engagement-driven promotion","Direct selling and viral marketing","Retargeting and social listening"],"answerIndex":1,"explanation":"Customers create the content (UGC) and rewards drive engagement."},
+    {"id":"q17","chapter":"social","price":400,"deckSlide":47,"type":"mc","prompt":"A cosmetics brand notices that although its social media posts receive high numbers of likes and shares, there is very little traffic converting to actual purchases from those platforms. Which social media metric should the brand focus on improving to better measure and increase conversion effectiveness?","options":["Impressions","Engagement rate","Click-through rate (CTR)","Follower growth rate"],"answerIndex":2,"explanation":"CTR shows how many people click through toward a purchase, which links social activity to conversions."},
+    {"id":"q18","chapter":"social","price":600,"deckSlide":67,"type":"mc","prompt":"A sportswear company sponsors a major marathon event and uses real-time social media updates, live video coverage, and user-generated content contests to engage audiences during the race. What is the primary advantage of combining sponsorship with social media in this scenario?","options":["It reduces the need for traditional advertising channels","It creates passive brand exposure with minimal engagement","It enhances audience interaction and extends sponsorship impact beyond the event","It focuses only on post-event analysis for marketing insights"],"answerIndex":2,"explanation":"Social media lets audiences interact and carries the sponsorship beyond the event itself."},
+    {"id":"q19","chapter":"social","price":800,"deckSlide":59,"type":"blank","prompt":"Microtargeting, originally used in political campaigns, is sometimes called _________ because it isolates markets using detailed data.","answerText":"Narrowcasting","explanation":"Narrowcasting aims messages at small, tightly defined audiences instead of broadcasting to everyone."},
+    {"id":"q20","chapter":"social","price":1000,"deckSlide":69,"type":"blank","prompt":"A successful social media marketing strategy involves creating _________ content that encourages _________, rather than just broadcasting promotional messages.","answerText":"Interactive (or engaging); Two-way communication (or audience participation)","explanation":"Social media works best as a conversation, not a one-way broadcast."},
+
+    {"id":"q21","chapter":"pr","price":200,"deckSlide":53,"type":"tf","prompt":"Public relations (PR) in IMC focuses only on managing crises and responding to negative publicity.","options":["True","False"],"answerIndex":1,"explanation":"PR also builds relationships, earns positive publicity and shapes the organization's image, not just crisis response."},
+    {"id":"q22","chapter":"pr","price":400,"deckSlide":73,"type":"mc","prompt":"Which of the following is a primary objective of Public Relations (PR) in an Integrated Marketing Communications strategy?","options":["To create short-term sales promotions","To manage and enhance the organization's public image","To develop product pricing strategies","To increase product placement in retail stores"],"answerIndex":1,"explanation":"PR manages and improves how the public sees the organization."},
+    {"id":"q23","chapter":"pr","price":600,"deckSlide":75,"type":"blank","prompt":"A well-executed _________ strategy helps an organization manage its reputation by fostering positive relationships with the public and handling negative publicity effectively.","answerText":"Public Relations","explanation":"Public relations manages reputation and relationships with the public."},
+    {"id":"q24","chapter":"pr","price":800,"deckSlide":35,"type":"tf","prompt":"It is always unethical for a company to gather competitive intelligence by hiring third-party research firms that collect data through surveys or publicly available reports.","options":["True","False"],"answerIndex":1,"explanation":"Using third-party firms and public sources is a legitimate way to gather competitive intelligence; ethical problems come from deception or illegal methods.","weakFit":true},
+    {"id":"q25","chapter":"pr","price":1000,"deckSlide":27,"type":"blank","prompt":"\"Do you think parents should spend more time with their children and/or their teachers?\" This is an example of ____________ question.","answerText":"Double-Barreled","explanation":"A double-barreled question asks two things at once, so one answer cannot cover both.","weakFit":true},
+
+    {"id":"q26","chapter":"sponsor","price":200,"deckSlide":71,"type":"blank","prompt":"The _________ process is how a person decides what to pay attention to and how to interpret and remember different things.","answerText":"Perceptual","explanation":"The perceptual process covers how people select, interpret and remember stimuli.","weakFit":true},
+    {"id":"q27","chapter":"sponsor","price":400,"deckSlide":65,"type":"blank","prompt":"In sponsorship marketing, a company supports an event, team, or organization in return for _________, which can increase brand recognition and loyalty among target audiences.","answerText":"Exposure (or visibility)","explanation":"Sponsors pay for exposure that builds brand recognition and loyalty."},
+    {"id":"q28","chapter":"sponsor","price":600,"deckSlide":45,"type":"blank","prompt":"A ______ is a two-dimensional graph that visually represents how consumers perceive a product in relation to competitors.","answerText":"Perceptual Map","explanation":"A perceptual map plots products on two dimensions to show how consumers see them versus competitors.","weakFit":true},
+    {"id":"q29","chapter":"sponsor","price":800,"deckSlide":77,"type":"blank","prompt":"Sponsorship marketing often involves a company financially supporting an event, activity, or organization, in exchange for _________, helping to enhance brand awareness and image.","answerText":"Brand visibility (or public exposure)","explanation":"Sponsorship buys brand visibility that supports awareness and image."},
+    {"id":"q30","chapter":"sponsor","price":1000,"deckSlide":79,"type":"blank","prompt":"A luxury watch brand partners with a major film studio to have its newest timepiece featured prominently on the wrist of the lead character, a high-powered CEO, in a blockbuster movie. The product is not explicitly mentioned in dialogue but is visibly integrated into key scenes. This strategy represents a form of indirect advertising known as _________, which enhances _________ by associating the product with the lifestyle or status of the character, without disrupting the viewer experience.","answerText":"Product placement; Brand visibility (or brand association)","explanation":"Product placement weaves a brand into content so audiences link it with the character's lifestyle."}
+  ]
+}.questions;
+// Marketing Mogul game engine.
+// Pure, UI-independent rules and state machine. No DOM, no network, no timers.
+// The projector page owns the authoritative state; phones only send answers
+// and receive phoneView() snapshots. All time comes in through `now` (ms).
+
+const PHASES = {
+  ROLL: 'roll',         // step 1: team on turn rolls (or chooses in Recall)
+  MOVE: 'move',         // step 2: token moves (UI animates, then sends MOVE_DONE)
+  QUESTION: 'question', // step 3: teams lock in answers on phones
+  JUDGE: 'judge',       // step 3: host taps Correct or Wrong (fill-in-the-blank)
+  RESULT: 'result',     // step 4: outcome shown, host presses Next team
+  ENDED: 'ended'
+};
+
+// Small seeded PRNG (mulberry32) so games and tests are reproducible.
+function nextRandom(state) {
+  state.rng = (state.rng + 0x6d2b79f5) >>> 0;
+  let t = state.rng;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function randInt(state, n) { return Math.floor(nextRandom(state) * n); }
+function shuffle(state, arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = randInt(state, i + 1);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function createEngine({ config, questions }) {
+  const spaces = config.spaces;
+  const RECALL_INDEX = spaces.find((s) => s.kind === 'recall').i;
+  const LAUNCH_INDEX = spaces.find((s) => s.kind === 'launch').i;
+  const N = spaces.length;
+  const qById = Object.fromEntries(questions.map((q) => [q.id, q]));
+  const qBySpace = {};
+  for (const s of spaces) {
+    if (s.kind !== 'question') continue;
+    const q = questions.find((x) => x.chapter === s.chapter && x.price === s.price);
+    if (!q) throw new Error(`No question for space ${s.i} (${s.chapter} $${s.price})`);
+    qBySpace[s.i] = q.id;
+  }
+  const chapterSpaces = {};
+  for (const s of spaces) {
+    if (s.kind === 'question') (chapterSpaces[s.chapter] ||= []).push(s.i);
+  }
+
+  const clone = (s) => structuredClone(s);
+  const activeTeam = (s) => s.teams[s.turn];
+  const teamById = (s, id) => s.teams.find((t) => t.id === id);
+
+  function ownsFullSet(state, teamId, chapter) {
+    return chapterSpaces[chapter].every((i) => state.owners[i] === teamId);
+  }
+  function rentFor(state, spaceIndex) {
+    const sp = spaces[spaceIndex];
+    const owner = state.owners[spaceIndex];
+    if (owner === undefined) return 0;
+    let rent = Math.round(sp.price * config.rentRate);
+    if (ownsFullSet(state, owner, sp.chapter)) rent *= config.setMultiplier;
+    return rent;
+  }
+  function netWorth(state, teamId) {
+    const t = teamById(state, teamId);
+    let total = t.cash;
+    for (const [i, owner] of Object.entries(state.owners)) {
+      if (owner === teamId) total += spaces[i].price;
+    }
+    return total;
+  }
+  function standings(state) {
+    return state.teams
+      .map((t) => ({ teamId: t.id, name: t.name, cash: t.cash, netWorth: netWorth(state, t.id), spaces: Object.values(state.owners).filter((o) => o === t.id).length }))
+      .sort((a, b) => b.netWorth - a.netWorth);
+  }
+
+  function log(state, text) { state.log.push({ round: state.round, text }); }
+
+  function createGame({ teams, timeLimitMinutes, seed = 1, now = 0 }) {
+    if (teams.length < config.minTeams || teams.length > config.maxTeams) {
+      throw new Error(`Teams must be ${config.minTeams} to ${config.maxTeams}`);
+    }
+    const state = {
+      phase: PHASES.ROLL,
+      rng: seed >>> 0,
+      now,
+      endsAt: now + (timeLimitMinutes ?? config.defaultTimeLimitMinutes) * 60000,
+      round: 1,
+      turn: 0,
+      teams: teams.map((t, k) => ({
+        id: t.id ?? `t${k + 1}`, name: t.name, color: t.color, pawn: t.pawn,
+        cash: config.startCash, pos: LAUNCH_INDEX, inRecall: false
+      })),
+      owners: {},
+      dice: null,
+      move: null,
+      pending: null,
+      question: null,   // { id, deadline }
+      answers: {},      // teamId -> option index (hidden until reveal)
+      result: null,
+      asked: [],
+      decks: {},
+      log: []
+    };
+    for (const [name, cards] of Object.entries(config.decks)) {
+      state.decks[name] = { order: shuffle(state, cards.map((_, i) => i)), next: 0 };
+    }
+    log(state, 'Game started.');
+    return state;
+  }
+
+  function startQuestion(state, qid, now) {
+    state.phase = PHASES.QUESTION;
+    state.question = { id: qid, deadline: now + config.questionSeconds * 1000 };
+    state.answers = {};
+    if (!state.asked.includes(qid)) state.asked.push(qid);
+  }
+
+  function pickExtraQuestion(state, chapter) {
+    const pool = questions.filter((q) => (chapter ? q.chapter === chapter : true));
+    const fresh = pool.filter((q) => !state.asked.includes(q.id));
+    const from = fresh.length ? fresh : pool;
+    return from[randInt(state, from.length)].id;
+  }
+
+  function finishTurn(state, result) {
+    state.phase = PHASES.RESULT;
+    state.result = result;
+    state.pending = null;
+  }
+
+  function pay(state, fromTeam, toTeamId, amount) {
+    const paid = Math.min(Math.max(amount, 0), fromTeam.cash);
+    fromTeam.cash -= paid;
+    if (toTeamId) teamById(state, toTeamId).cash += paid;
+    return paid;
+  }
+
+  function drawCard(state, deckName) {
+    const d = state.decks[deckName];
+    const cards = config.decks[deckName];
+    const card = cards[d.order[d.next % d.order.length]];
+    d.next += 1;
+    return card;
+  }
+
+  function resolveLanding(state, now) {
+    const team = activeTeam(state);
+    const sp = spaces[team.pos];
+    switch (sp.kind) {
+      case 'launch':
+        log(state, `${team.name} landed on Launch.`);
+        return finishTurn(state, { kind: 'launch', space: sp.i });
+      case 'study':
+        log(state, `${team.name} took a Study Break.`);
+        return finishTurn(state, { kind: 'study', space: sp.i });
+      case 'recall':
+        log(state, `${team.name} is just visiting Product Recall.`);
+        return finishTurn(state, { kind: 'visitRecall', space: sp.i });
+      case 'goToRecall':
+        team.pos = RECALL_INDEX;
+        team.inRecall = true;
+        log(state, `${team.name} was sent to Product Recall.`);
+        return finishTurn(state, { kind: 'goToRecall', space: sp.i });
+      case 'card': {
+        const card = drawCard(state, sp.deck);
+        const e = card.effect;
+        let detail = {};
+        if (e.type === 'cash') {
+          if (e.amount >= 0) team.cash += e.amount;
+          else detail.paid = pay(state, team, null, -e.amount);
+        } else if (e.type === 'advanceToLaunch') {
+          team.pos = LAUNCH_INDEX;
+          team.cash += config.launchBonus;
+        } else if (e.type === 'goToRecall') {
+          team.pos = RECALL_INDEX;
+          team.inRecall = true;
+        }
+        log(state, `${team.name} drew: ${card.text}`);
+        return finishTurn(state, { kind: 'card', deck: sp.deck, card, ...detail });
+      }
+      case 'question': {
+        const owner = state.owners[sp.i];
+        if (owner === undefined) {
+          if (team.cash < sp.price) {
+            log(state, `${team.name} cannot afford ${sp.name} ($${sp.price}).`);
+            return finishTurn(state, { kind: 'cantAfford', space: sp.i, price: sp.price });
+          }
+          state.pending = { kind: 'buy', space: sp.i };
+          return startQuestion(state, qBySpace[sp.i], now);
+        }
+        if (owner === team.id) {
+          log(state, `${team.name} owns ${sp.name}. Nothing happens.`);
+          return finishTurn(state, { kind: 'ownSpace', space: sp.i });
+        }
+        state.pending = { kind: 'defend', space: sp.i, owner, rent: rentFor(state, sp.i) };
+        return startQuestion(state, pickExtraQuestion(state, sp.chapter), now);
+      }
+      default:
+        throw new Error(`Unknown space kind ${sp.kind}`);
+    }
+  }
+
+  function applyOutcome(state, correct) {
+    const team = activeTeam(state);
+    const q = qById[state.question.id];
+    const reveal = {
+      questionId: q.id,
+      correctAnswer: q.type === 'blank' ? q.answerText : q.options[q.answerIndex],
+      explanation: q.explanation,
+      teamAnswers: { ...state.answers }
+    };
+    const p = state.pending;
+    if (p.kind === 'buy') {
+      const sp = spaces[p.space];
+      if (correct) {
+        team.cash -= sp.price;
+        state.owners[p.space] = team.id;
+        const setComplete = ownsFullSet(state, team.id, sp.chapter);
+        log(state, `${team.name} answered correctly and bought ${sp.name} for $${sp.price}.${setComplete ? ` Chapter complete: ${config.chapters[sp.chapter].name}!` : ''}`);
+        return finishTurn(state, { kind: 'bought', correct, space: p.space, price: sp.price, setComplete, reveal });
+      }
+      log(state, `${team.name} missed the question. ${sp.name} stays on the market.`);
+      return finishTurn(state, { kind: 'missedBuy', correct, space: p.space, reveal });
+    }
+    if (p.kind === 'defend') {
+      const sp = spaces[p.space];
+      if (correct) {
+        log(state, `${team.name} defended the rent on ${sp.name}. Nothing paid.`);
+        return finishTurn(state, { kind: 'defended', correct, space: p.space, owner: p.owner, reveal });
+      }
+      const paid = pay(state, team, p.owner, p.rent);
+      log(state, `${team.name} missed the question and paid $${paid} rent to ${teamById(state, p.owner).name}.`);
+      return finishTurn(state, { kind: 'rentPaid', correct, space: p.space, owner: p.owner, rent: p.rent, paid, reveal });
+    }
+    if (p.kind === 'escape') {
+      if (correct) {
+        team.inRecall = false;
+        state.pending = null;
+        state.question = null;
+        state.answers = {};
+        state.phase = PHASES.ROLL;
+        state.escaped = { reveal };
+        log(state, `${team.name} answered correctly and left Product Recall. Roll the dice.`);
+        return state;
+      }
+      // A wrong answer costs the turn but releases the team (same outcome as waiting).
+      team.inRecall = false;
+      log(state, `${team.name} missed the question, misses this turn and leaves Product Recall.`);
+      return finishTurn(state, { kind: 'recallMissed', correct, reveal });
+    }
+    throw new Error('Unknown pending kind');
+  }
+
+  function allLockedIn(state) {
+    return state.teams.every((t) => state.answers[t.id] !== undefined);
+  }
+
+  function reduce(prev, action) {
+    const state = clone(prev);
+    if (action.now !== undefined) state.now = action.now;
+    const team = activeTeam(state);
+
+    switch (action.type) {
+      case 'ROLL': {
+        if (state.phase !== PHASES.ROLL) throw new Error('Not the roll step');
+        if (team.inRecall) throw new Error('Team is in Recall: choose to answer or wait');
+        state.escaped = null;
+        const d = action.dice ?? [1 + randInt(state, 6), 1 + randInt(state, 6)];
+        const sum = d[0] + d[1];
+        const from = team.pos;
+        const raw = from + sum;
+        const to = raw % N;
+        if (raw >= N) {
+          team.cash += config.launchBonus;
+          log(state, `${team.name} passed Launch and collected $${config.launchBonus}.`);
+        }
+        team.pos = to;
+        state.dice = d;
+        state.move = { from, to, steps: sum, passedLaunch: raw >= N };
+        state.phase = PHASES.MOVE;
+        log(state, `${team.name} rolled ${d[0]} + ${d[1]} = ${sum} and moved to ${spaces[to].name}.`);
+        return state;
+      }
+      case 'MOVE_DONE': {
+        if (state.phase !== PHASES.MOVE) throw new Error('Not the move step');
+        resolveLanding(state, state.now);
+        return state;
+      }
+      case 'RECALL_CHOICE': {
+        if (state.phase !== PHASES.ROLL || !team.inRecall) throw new Error('Team is not choosing in Recall');
+        if (action.choice === 'wait') {
+          team.inRecall = false;
+          log(state, `${team.name} waited out a turn and leaves Product Recall.`);
+          finishTurn(state, { kind: 'recallWait' });
+          return state;
+        }
+        if (action.choice === 'answer') {
+          state.pending = { kind: 'escape' };
+          startQuestion(state, pickExtraQuestion(state, null), state.now);
+          return state;
+        }
+        throw new Error('Choice must be answer or wait');
+      }
+      case 'SUBMIT_ANSWER': {
+        if (state.phase !== PHASES.QUESTION) throw new Error('No open question');
+        if (!teamById(state, action.teamId)) throw new Error('Unknown team');
+        const q = qById[state.question.id];
+        if (q.type === 'blank') {
+          // Fill-in-the-blank is judged by the host; phones just mark "locked in".
+          state.answers[action.teamId] = -1;
+        } else {
+          if (!Number.isInteger(action.answer) || action.answer < 0 || action.answer >= q.options.length) throw new Error('Invalid option');
+          state.answers[action.teamId] = action.answer;
+        }
+        return state;
+      }
+      case 'REVEAL': {
+        if (state.phase !== PHASES.QUESTION) throw new Error('Nothing to reveal');
+        const q = qById[state.question.id];
+        if (q.type === 'blank') {
+          state.phase = PHASES.JUDGE;
+          return state;
+        }
+        const correct = state.answers[team.id] === q.answerIndex;
+        applyOutcome(state, correct);
+        return state;
+      }
+      case 'JUDGE': {
+        if (state.phase !== PHASES.JUDGE) throw new Error('Not judging');
+        applyOutcome(state, !!action.correct);
+        return state;
+      }
+      case 'NEXT_TEAM': {
+        if (state.phase !== PHASES.RESULT) throw new Error('Not at the result step');
+        state.turn = (state.turn + 1) % state.teams.length;
+        state.dice = null; state.move = null; state.question = null;
+        state.answers = {}; state.result = null; state.pending = null; state.escaped = null;
+        if (state.turn === 0) {
+          state.round += 1;
+          if (state.now >= state.endsAt) {
+            state.phase = PHASES.ENDED;
+            state.final = standings(state);
+            log(state, 'Time is up. Game over.');
+            return state;
+          }
+        }
+        state.phase = PHASES.ROLL;
+        return state;
+      }
+      case 'END_NOW': {
+        state.phase = PHASES.ENDED;
+        state.final = standings(state);
+        return state;
+      }
+      default:
+        throw new Error(`Unknown action ${action.type}`);
+    }
+  }
+
+  // ---- Guided UX selector -------------------------------------------------
+  // Tells the UI what to show and which single host control is enabled.
+  function nextStep(state, now = state.now) {
+    const team = state.teams[state.turn];
+    const enabled = { roll: false, recallAnswer: false, recallWait: false, reveal: false, judgeCorrect: false, judgeWrong: false, nextTeam: false };
+    const name = team.name;
+    switch (state.phase) {
+      case PHASES.ROLL:
+        if (team.inRecall) {
+          enabled.recallAnswer = true; enabled.recallWait = true;
+          return { step: 1, of: 4, auto: false, enabled, banner: `${name} is in Product Recall: answer a question to escape, or wait a turn.` };
+        }
+        enabled.roll = true;
+        return { step: 1, of: 4, auto: false, enabled, banner: state.escaped ? `${name} is free! Press ROLL DICE.` : `${name}: press ROLL DICE to move.` };
+      case PHASES.MOVE:
+        return { step: 2, of: 4, auto: true, enabled, banner: `${name} is moving to ${spaces[team.pos].name}...` };
+      case PHASES.QUESTION: {
+        const ready = allLockedIn(state) || now >= state.question.deadline;
+        enabled.reveal = ready;
+        const locked = Object.keys(state.answers).length;
+        return {
+          step: 3, of: 4, auto: false, enabled,
+          banner: ready ? 'Time to reveal. Press REVEAL.' : 'Everyone: pick an answer on your phone and press Lock in.',
+          progress: { locked, teams: state.teams.length }
+        };
+      }
+      case PHASES.JUDGE:
+        enabled.judgeCorrect = true; enabled.judgeWrong = true;
+        return { step: 3, of: 4, auto: false, enabled, banner: `Host: did ${name} answer correctly? Tap CORRECT or WRONG.` };
+      case PHASES.RESULT:
+        enabled.nextTeam = true;
+        return { step: 4, of: 4, auto: false, enabled, banner: `${resultSummary(state)} Press NEXT TEAM.` };
+      case PHASES.ENDED:
+        return { step: 4, of: 4, auto: false, enabled, banner: 'Game over. See the final standings.' };
+      default:
+        throw new Error('Unknown phase');
+    }
+  }
+
+  function resultSummary(state) {
+    const r = state.result;
+    const name = activeTeam(state).name;
+    const sp = r.space !== undefined ? spaces[r.space].name : '';
+    switch (r.kind) {
+      case 'bought': return `${name} bought ${sp} for $${r.price}.`;
+      case 'missedBuy': return `${name} missed it. ${sp} stays on the market.`;
+      case 'defended': return `${name} defended the rent. Nothing paid.`;
+      case 'rentPaid': return `${name} paid $${r.paid} rent.`;
+      case 'cantAfford': return `${name} cannot afford ${sp}.`;
+      case 'ownSpace': return `${name} already owns ${sp}.`;
+      case 'launch': return `${name} is on Launch.`;
+      case 'study': return `${name} takes a Study Break.`;
+      case 'visitRecall': return `${name} is just visiting Recall.`;
+      case 'goToRecall': return `${name} goes to Product Recall.`;
+      case 'card': return r.card.text;
+      case 'recallWait': return `${name} waits a turn and leaves Recall.`;
+      case 'recallMissed': return `${name} missed it, sits this turn out and leaves Recall.`;
+      default: return '';
+    }
+  }
+
+  // What a team's phone is allowed to see. Other teams' answers are hidden
+  // until the result step.
+  function phoneView(state, teamId, now = state.now) {
+    const t = teamById(state, teamId);
+    const q = state.question && qById[state.question.id];
+    const view = {
+      phase: state.phase,
+      round: state.round,
+      activeTeamId: activeTeam(state).id,
+      you: { id: t.id, name: t.name, cash: t.cash, pos: t.pos, inRecall: t.inRecall, netWorth: netWorth(state, t.id), deeds: Object.entries(state.owners).filter(([, o]) => o === t.id).map(([i]) => Number(i)) },
+      question: null,
+      result: null
+    };
+    if (state.phase === PHASES.QUESTION && q) {
+      view.question = {
+        id: q.id, type: q.type, prompt: q.prompt, options: q.options ?? null,
+        deadline: state.question.deadline, secondsLeft: Math.max(0, Math.ceil((state.question.deadline - now) / 1000)),
+        lockedIn: state.answers[teamId] !== undefined,
+        yourAnswer: state.answers[teamId] !== undefined && state.answers[teamId] >= 0 ? state.answers[teamId] : null
+      };
+    }
+    if (state.phase === PHASES.RESULT && state.result) {
+      view.result = { kind: state.result.kind, summary: resultSummary(state), reveal: state.result.reveal ?? null };
+    }
+    return view;
+  }
+
+  return { createGame, reduce, nextStep, phoneView, rentFor, netWorth, standings, ownsFullSet, qBySpace, resultSummary };
+}
+
+const E = createEngine({ config: CFG, questions: QS });
+const QBY = Object.fromEntries(QS.map((q) => [q.id, q]));
+
+/* ===================== settings ===================== */
+const ABLY_KEY = '4vpy2w.OAzCCA:RlXMETCniEMMoKUPsCuX9T-Z3ljDSSVZ15NKoW7yJH0';
+const PHONE_URL = 'https://risbhard.github.io/chapter11_12/mogul.html';
+const QR_SVG = `<svg viewBox="0 0 35 35" width="100%" height="100%" shape-rendering="crispEdges" class="segno"><path fill="#fff" d="M0 0h35v35h-35z"/><path class="qrline" stroke="#1b1b1b" d="M1 1.5h7m2 0h4m3 0h2m1 0h2m2 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m2 0h1m2 0h2m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h2m2 0h1m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h1m5 0h1m1 0h1m3 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h4m9 0h1m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h3m3 0h1m1 0h1m4 0h2m-23 1h1m1 0h5m3 0h5m2 0h1m4 0h1m1 0h1m1 0h5m-29 1h2m1 0h1m3 0h1m2 0h3m1 0h5m1 0h2m2 0h2m1 0h4m-32 1h1m2 0h1m1 0h1m1 0h2m1 0h1m1 0h5m4 0h1m1 0h1m3 0h1m1 0h2m-32 1h1m4 0h1m1 0h1m1 0h1m1 0h1m1 0h1m6 0h2m1 0h2m1 0h1m1 0h4m-30 1h1m3 0h1m5 0h1m1 0h4m2 0h1m1 0h1m5 0h2m1 0h1m-32 1h1m2 0h1m1 0h1m1 0h2m1 0h4m1 0h1m2 0h4m1 0h1m2 0h2m2 0h3m-33 1h2m2 0h1m1 0h1m1 0h1m2 0h8m1 0h1m4 0h2m4 0h1m-32 1h3m2 0h1m1 0h1m5 0h1m1 0h1m2 0h4m1 0h1m1 0h3m2 0h1m-30 1h6m2 0h1m1 0h2m1 0h2m1 0h4m1 0h1m1 0h2m1 0h3m2 0h1m-33 1h3m2 0h1m5 0h4m1 0h5m2 0h1m1 0h3m1 0h2m1 0h1m-33 1h2m1 0h2m1 0h2m2 0h3m2 0h3m2 0h2m3 0h4m1 0h2m-32 1h1m1 0h1m4 0h1m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h8m-27 1h4m1 0h1m1 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m2 0h2m1 0h1m-32 1h2m6 0h2m1 0h3m1 0h5m1 0h3m2 0h2m2 0h1m1 0h1m-33 1h1m1 0h1m1 0h3m3 0h1m1 0h1m1 0h1m2 0h1m3 0h2m5 0h4m-32 1h1m2 0h2m2 0h1m1 0h3m1 0h1m2 0h1m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m-31 1h1m2 0h1m2 0h2m4 0h1m1 0h1m2 0h1m1 0h1m3 0h7m2 0h1m-25 1h5m5 0h4m1 0h2m3 0h1m1 0h3m-33 1h7m4 0h1m3 0h2m3 0h5m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m2 0h1m1 0h2m1 0h1m2 0h3m1 0h2m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h2m8 0h1m3 0h1m1 0h6m-30 1h1m1 0h3m1 0h1m1 0h2m1 0h1m2 0h2m1 0h4m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h5m2 0h1m2 0h1m1 0h1m1 0h1m3 0h2m1 0h2m-31 1h1m5 0h1m2 0h1m3 0h1m1 0h1m4 0h2m3 0h2m1 0h3m-31 1h7m1 0h2m1 0h5m1 0h1m1 0h1m2 0h4m1 0h1m1 0h3"/></svg>`;
+const TEAM_STYLE = [
+  { color: '#2B5CE0', shape: 'circle', word: 'blue circle' },
+  { color: '#111111', shape: 'square', word: 'black square' },
+  { color: '#0E8F5E', shape: 'triangle', word: 'green triangle' },
+  { color: '#7C3AED', shape: 'diamond', word: 'purple diamond' },
+  { color: '#0891B2', shape: 'hexagon', word: 'teal hexagon' },
+  { color: '#6B4423', shape: 'star', word: 'brown star' }
+];
+const SHORT = { research: 'Research', message: 'Message', demand: 'Demand', social: 'Social', pr: 'PR', sponsor: 'Sponsors' };
+const TEAM_NAMES = ['The Marketeers', 'Brand Wolves', 'Ad Vantage', 'Signal & Noise', 'Pixel Push', 'The Funnels'];
+const CLIP = {
+  circle: 'circle(50%)', square: 'inset(0)', triangle: 'polygon(50% 4%,100% 96%,0 96%)', diamond: 'polygon(50% 0,100% 50%,50% 100%,0 50%)',
+  hexagon: 'polygon(25% 5%,75% 5%,100% 50%,75% 95%,25% 95%,0 50%)',
+  star: 'polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)'
+};
+const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===================== helpers ===================== */
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const shp = (color, shape, size = 24) => `<span class="shp" style="width:${size}px;height:${size}px;background:${color};clip-path:${CLIP[shape]}"></span>`;
+const fmtMoney = (t) => String(t).replace(/\$(\d{4,})/g, (m, d) => '$' + Number(d).toLocaleString('en-US'));
+const mmss = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const $ = (id) => document.getElementById(id);
+const LETTERS = 'ABCD';
+function dieSVG(n) {
+  const P = { 1: [[1, 1]], 2: [[0, 0], [2, 2]], 3: [[0, 0], [1, 1], [2, 2]], 4: [[0, 0], [2, 0], [0, 2], [2, 2]], 5: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]], 6: [[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [2, 2]] }[n] || [];
+  return `<svg width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Die showing ${n}">${P.map(([x, y]) => `<circle cx="${14 + x * 18}" cy="${14 + y * 18}" r="6.5" fill="#1B1B1B"/>`).join('')}</svg>`;
+}
+const isPhone = /[?&]phone\b/.test(location.search) || location.hash === '#phone';
+function newCode() { const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let c = ''; for (let i = 0; i < 4; i++) c += L[Math.floor(Math.random() * L.length)]; return c; }
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage may be blocked */ } },
+  del(k) { try { localStorage.removeItem(k); } catch { /* ignore */ } }
+};
+
+/* ===================== network (Ably + same-browser channel) ===================== */
+function loadAbly() {
+  if (window.Ably) return Promise.resolve(window.Ably);
+  const urls = ['https://cdn.ably.com/lib/ably.min-1.js', 'https://cdn.ably.com/lib/ably.min-2.js'];
+  const tryOne = (i) => new Promise((resolve, reject) => {
+    if (i >= urls.length) return reject(new Error('none'));
+    const s = document.createElement('script');
+    s.src = urls[i]; s.async = true;
+    s.onload = () => (window.Ably ? resolve(window.Ably) : tryOne(i + 1).then(resolve, reject));
+    s.onerror = () => tryOne(i + 1).then(resolve, reject);
+    document.head.appendChild(s);
+  });
+  return tryOne(0);
+}
+function openNet(code, onmsg, onstatus) {
+  let bc = null; let ch = null; const queue = [];
+  try { bc = new BroadcastChannel('mogul-' + code); bc.onmessage = (e) => onmsg(e.data); } catch { bc = null; }
+  onstatus(ABLY_KEY ? 'connecting' : 'local');
+  if (ABLY_KEY) {
+    const timer = setTimeout(() => { if (!ch) onstatus('offline'); }, 9000);
+    loadAbly().then((Ably) => {
+      const client = new Ably.Realtime({ key: ABLY_KEY, echoMessages: false });
+      client.connection.on((c) => onstatus(c.current === 'connected' ? 'live' : c.current));
+      ch = client.channels.get('mogul:' + code);
+      ch.subscribe('m', (m) => { if (m && m.data && typeof m.data === 'object') onmsg(m.data); });
+      clearTimeout(timer);
+      queue.splice(0).forEach((m) => ch.publish('m', m));
+    }).catch(() => { clearTimeout(timer); onstatus('offline'); });
+  }
+  return {
+    send(m) {
+      if (bc) { try { bc.postMessage(m); } catch { /* ignore */ } }
+      if (ch) { try { ch.publish('m', m); } catch { /* ignore */ } } else if (ABLY_KEY && queue.length < 30) queue.push(m);
+    }
+  };
+}
+const STATUS_TEXT = {
+  live: 'Phones: connected', connecting: 'Phones: connecting…', offline: 'Phones: cannot reach the internet service. Demo only.',
+  local: 'Phones: same browser only', failed: 'Phones: connection failed', disconnected: 'Phones: reconnecting…', suspended: 'Phones: reconnecting…'
+};
+function showStatus(s) { const n = $('net'); if (n) n.textContent = (isPhone && s === 'live') ? '' : (isPhone ? (STATUS_TEXT[s] || s).replace('Phones', 'Connection') : (STATUS_TEXT[s] || ('Phones: ' + s))); }
+
+/* ===================== host ===================== */
+const S = {
+  screen: 'setup', code: null, net: null,
+  setup: { seats: 4, minutes: 45 },
+  names: TEAM_NAMES.slice(),
+  seats: [], G: null, demo: false, anim: null, showHow: false, plan: null, sig: '', endArmed: false, lastHello: 0, resume: store.get('mogul-host')
+};
+const $stage = $('stage');
+
+function fit() {
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  $stage.style.transform = `scale(${s})`;
+  $stage.style.left = Math.max(0, (innerWidth - 1920 * s) / 2) + 'px';
+  $stage.style.top = Math.max(0, (innerHeight - 1080 * s) / 2) + 'px';
+}
+addEventListener('resize', fit);
+
+function makeSeats(n) {
+  return Array.from({ length: n }, (_, i) => ({ id: 's' + (i + 1), name: S.names[i] || 'Team ' + (i + 1), color: TEAM_STYLE[i].color, shape: TEAM_STYLE[i].shape, owner: null }));
+}
+function team(id) { return S.G && S.G.teams.find((t) => t.id === id); }
+function seatOf(id) { return S.seats.find((s) => s.id === id); }
+function activeTeam() { return S.G.teams[S.G.turn]; }
+function persist() {
+  if (!S.G && S.screen !== 'lobby') return;
+  store.set('mogul-host', { code: S.code, seats: S.seats, G: S.G, screen: S.screen, demo: S.demo, names: S.names, setup: S.setup, at: Date.now() });
+}
+
+function ensureNet() {
+  if (S.net) return;
+  S.net = openNet(S.code, onHostMsg, showStatus);
+}
+function onHostMsg(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'hello') {
+    const n = Date.now();
+    if (n - S.lastHello > 700) { S.lastHello = n; publish(); }
+  } else if (m.t === 'claim') claimSeat(m);
+  else if (m.t === 'release') {
+    const s = seatOf(m.seat);
+    if (s && s.owner === m.device && S.screen === 'lobby') { s.owner = null; publish(); render(); }
+  } else if (m.t === 'answer') phoneAnswer(m);
+}
+function claimSeat(m) {
+  const s = seatOf(m.seat);
+  if (!s || !m.device) return;
+  if (s.owner && s.owner !== m.device) return;
+  if (S.screen === 'lobby') {
+    S.seats.forEach((o) => { if (o.owner === m.device) o.owner = null; });
+    s.owner = m.device;
+    persist(); publish(); render();
+  } else publish();
+}
+function phoneAnswer(m) {
+  const G = S.G; const s = seatOf(m.seat);
+  if (!G || !s || s.owner !== m.device || G.phase !== 'question') return;
+  if (G.answers[s.id] !== undefined) return;
+  dispatch({ type: 'SUBMIT_ANSWER', teamId: s.id, answer: m.answer });
+}
+
+function snapshot() {
+  const snap = { t: 'snap', code: S.code, mode: S.screen, seats: S.seats.map((s) => ({ id: s.id, name: s.name, color: s.color, shape: s.shape, owner: s.owner })), at: Date.now() };
+  const G = S.G;
+  if (G) {
+    snap.round = G.round; snap.phase = S.gate ? 'landed' : G.phase; snap.views = {};
+    snap.activeName = activeTeam().name;
+    const q = G.question && QBY[G.question.id];
+    for (const t of G.teams) {
+      const v = E.phoneView(G, t.id);
+      v.activeName = activeTeam().name;
+      if (S.gate) { v.question = null; v.result = null; }
+      if (v.result && v.result.reveal && q) {
+        const ans = v.result.reveal.teamAnswers; const ids = Object.keys(ans);
+        v.result.tally = q.type === 'blank' ? null : { right: ids.filter((i) => ans[i] === q.answerIndex).length, total: G.teams.length };
+        v.youCorrect = q.type === 'blank' ? (activeTeam().id === t.id ? (G.result.correct ?? null) : null) : ans[t.id] === q.answerIndex;
+        v.result.reveal = { correctAnswer: v.result.reveal.correctAnswer, explanation: v.result.reveal.explanation };
+      }
+      snap.views[t.id] = v;
+    }
+    if (G.final) snap.final = G.final;
+  }
+  return snap;
+}
+function publish() { if (S.net && (S.screen !== 'setup')) S.net.send(snapshot()); }
+
+/* ---- game actions ---- */
+function dispatch(a) {
+  const prev = S.G;
+  const cash0 = Object.fromEntries(prev.teams.map((t) => [t.id, t.cash]));
+  const landPos = prev.teams[prev.turn].pos;
+  try { S.G = E.reduce(prev, { ...a, now: Date.now() }); } catch (err) { console.warn(err); return; }
+  if (a.type === 'MOVE_DONE' || a.type === 'RECALL_CHOICE') S.cash0 = cash0;
+  if (a.type === 'MOVE_DONE' && (S.G.phase === 'question' || S.G.phase === 'result')) S.gate = { pos: landPos, cash0 };
+  else S.gate = null;
+  if (a.type === 'ROLL') startAnim();
+  if (a.type === 'REVEAL' || a.type === 'JUDGE' || a.type === 'RECALL_CHOICE' || a.type === 'NEXT_TEAM') S.endArmed = false;
+  S.plan = null;
+  persist(); publish(); render();
+}
+function startAnim() {
+  const m = S.G.move; const d = S.G.dice;
+  S.anim = { pos: m.from, dice: d, rolling: true, faces: [1, 1], k: 0, n: m.steps };
+  render();
+  const faceTimer = setInterval(() => { if (!S.anim) return clearInterval(faceTimer); S.anim.faces = [1 + Math.floor(Math.random() * 6), 1 + Math.floor(Math.random() * 6)]; renderDice(); }, 90);
+  setTimeout(() => {
+    clearInterval(faceTimer);
+    if (!S.anim) return;
+    S.anim.rolling = false; S.anim.faces = d; render();
+    let k = 0; const gap = REDUCE ? 350 : 650;
+    const hop = setInterval(() => {
+      if (!S.anim) return clearInterval(hop);
+      k += 1; S.anim.pos = (m.from + k) % 40; S.anim.k = k; render();
+      if (k >= m.steps) { clearInterval(hop); setTimeout(() => { S.anim = null; dispatch({ type: 'MOVE_DONE' }); }, REDUCE ? 400 : 1100); }
+    }, gap);
+  }, REDUCE ? 400 : 1500);
+}
+
+/* ---- demo bots ---- */
+function botTick() {
+  const G = S.G;
+  if (!S.demo || !G || G.phase !== 'question') return;
+  const key = G.round + '-' + G.turn + '-' + G.question.id + '-' + G.question.deadline;
+  if (!S.plan || S.plan.key !== key) {
+    const q = QBY[G.question.id]; const due = {};
+    for (const t of G.teams) {
+      const right = Math.random() < 0.6;
+      let answer = -1;
+      if (q.type !== 'blank') answer = right ? q.answerIndex : Math.floor(Math.random() * q.options.length);
+      due[t.id] = { at: Date.now() + 1500 + Math.random() * 6000, answer };
+    }
+    S.plan = { key, due };
+  }
+  for (const [id, d] of Object.entries(S.plan.due)) {
+    if (!d.done && Date.now() >= d.at && G.answers[id] === undefined) { d.done = true; dispatch({ type: 'SUBMIT_ANSWER', teamId: id, answer: d.answer }); return; }
+  }
+}
+
+/* ---- timers ---- */
+setInterval(() => {
+  if (isPhone || !S.G || S.screen !== 'game') return;
+  botTick();
+  const st = S.G.phase === 'ended' ? null : E.nextStep(S.G, Date.now());
+  const sig = st ? JSON.stringify([st.enabled, st.banner]) : 'end';
+  if (sig !== S.sig) { S.sig = sig; render(); return; }
+  const c = $('clock'); if (c) c.innerHTML = clockHTML();
+  const qt = $('qt'); if (qt && S.G.question) {
+    const left = Math.max(0, S.G.question.deadline - Date.now());
+    qt.querySelector('b').textContent = Math.ceil(left / 1000) + 's';
+    qt.querySelector('.timerbar div').style.width = (100 * left / (CFG.questionSeconds * 1000)) + '%';
+  }
+}, 250);
+function clockHTML() {
+  const left = S.G.endsAt - Date.now();
+  return left > 0 ? `${mmss(left)}<small>TIME LEFT</small>` : `0:00<small>FINISHING THE ROUND</small>`;
+}
+
+/* ===================== host rendering ===================== */
+function tokensAt(i) {
+  if (!S.G) return [];
+  return S.G.teams.filter((t) => {
+    const pos = (S.anim && t.id === activeTeam().id) ? S.anim.pos : (S.gate && t.id === activeTeam().id ? S.gate.pos : t.pos);
+    return pos === i;
+  });
+}
+function tokHTML(list, size) {
+  const act = S.G && activeTeam().id;
+  return list.map((t) => `<span class="${t.id === act ? 'hot-pulse' : ''}" title="${esc(t.name)}" style="display:inline-flex;padding:1px;border-radius:50%;background:${t.id === act ? '#FFD23F' : 'transparent'}">${shp(t.color, t.pawn, size)}</span>`).join('');
+}
+function hotIndex() { if (!S.G || S.G.phase === 'ended') return -1; return (S.anim ? S.anim.pos : (S.gate ? S.gate.pos : activeTeam().pos)); }
+function corner(i, col, row) {
+  const sp = CFG.spaces[i]; const hot = hotIndex() === i ? ' hot' : '';
+  const icons = {
+    launch: `<svg width="64" height="26" viewBox="0 0 64 22" aria-hidden="true"><path d="M60 11 H6 M16 3 L6 11 L16 19" fill="none" stroke="#C8282D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    recall: `<svg width="44" height="44" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="14" fill="none" stroke="#1B1B1B" stroke-width="2.5"/><path d="M20 12 V22 M20 27 V28" stroke="#1B1B1B" stroke-width="3" stroke-linecap="round"/></svg>`,
+    study: `<svg width="44" height="44" viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="14" width="28" height="20" rx="2" fill="none" stroke="#1B1B1B" stroke-width="2.5"/><path d="M6 14 L20 4 L34 14" fill="none" stroke="#1B1B1B" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 24 H26" stroke="#1B1B1B" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+    goToRecall: `<svg width="44" height="44" viewBox="0 0 40 40" aria-hidden="true"><path d="M8 20 H30 M22 10 L32 20 L22 30" fill="none" stroke="#C8282D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  };
+  const cap = { launch: 'Collect $200 as you pass', recall: 'Visiting, or stuck', study: 'Safe stop. Nothing happens.', goToRecall: 'Go straight to Recall' }[sp.kind];
+  const nm = sp.kind === 'launch' ? `<div class="cn" style="font-size:34px;color:var(--red)">LAUNCH</div>` : `<div class="cn">${esc(sp.name)}</div>`;
+  return `<div class="corner${hot}" style="grid-column:${col};grid-row:${row}">${nm}${icons[sp.kind]}<div class="cs">${cap}</div><div class="tok">${tokHTML(tokensAt(i), 20)}</div></div>`;
+}
+function tile(i, side) {
+  const sp = CFG.spaces[i]; const G = S.G; const hot = hotIndex() === i ? ' hot' : '';
+  const toks = tokHTML(tokensAt(i), tokensAt(i).length > 2 ? 13 : 20);
+  if (sp.kind === 'card') {
+    const trend = sp.deck === 'marketTrend';
+    const side2 = side === 'left' || side === 'right';
+    return `<div class="tile card ${side}${hot}" style="background:${trend ? '#F4A62A' : '#7CC4EE'}"><div class="tb" style="text-align:center;align-items:center"><div class="nm">${esc(sp.name)}</div><div class="tok" style="min-height:0">${toks}</div>${side2 ? '' : '<div class="pr" style="font-size:16px">Draw a card</div>'}</div></div>`;
+  }
+  const ch = CFG.chapters[sp.chapter]; const ownerId = G && G.owners[i];
+  const ot = ownerId && team(ownerId);
+  const full = ot && E.ownsFullSet(G, ownerId, sp.chapter) ? ' full' : '';
+  const price = ot ? `${shp(ot.color, ot.pawn, 20)}<span>${money(E.rentFor(G, i))}</span>` : `<span>${money(sp.price)}</span>`;
+  const body = (side === 'left' || side === 'right')
+    ? `<div class="tb"><div class="nm">${esc(sp.name)}</div><div class="bot"><div class="pr">${price}</div><div class="tok" style="min-height:0">${toks}</div></div></div>`
+    : `<div class="tb"><div class="nm">${esc(sp.name)}</div><div class="tok">${toks}</div><div class="pr">${price}</div></div>`;
+  return `<div class="tile ${side}${hot}${full}"><div class="band" style="background:${ch.color}"></div>${body}</div>`;
+}
+function boardHTML() {
+  const rng = (a, b) => { const o = []; for (let i = a; i <= b; i++) o.push(i); return o; };
+  const top = rng(21, 29); const bottom = rng(1, 9).reverse(); const left = rng(11, 19).reverse(); const right = rng(31, 39);
+  const G = S.G;
+  return `<div class="board" id="board">
+    ${corner(20, 1, 1)}
+    <div class="strip" style="grid-column:2;grid-row:1">${top.map((i) => tile(i, 'top')).join('')}</div>
+    ${corner(30, 3, 1)}
+    <div class="strip v" style="grid-column:1;grid-row:2">${left.map((i) => tile(i, 'left')).join('')}</div>
+    <div class="centre">
+      <div><div class="logo">MARKETING MOGUL</div><div class="sub1">EXAM 4 REVIEW &nbsp;·&nbsp; ROUND ${G.round}</div></div>
+      <div class="decks"><div class="deck" style="background:#F4A62A"><b>Market Trend</b><span>Draw a bonus card</span></div><div class="deck" style="background:#7CC4EE"><b>Press Release</b><span>Draw a news card</span></div></div>
+      <div class="clock" id="clock">${clockHTML()}</div>
+      <div class="joinpill">${S.demo ? 'Demo game: practice teams' : `Join at <b>${S.code}</b>`}</div>
+    </div>
+    <div class="strip v" style="grid-column:3;grid-row:2">${right.map((i) => tile(i, 'right')).join('')}</div>
+    ${corner(10, 1, 3)}
+    <div class="strip" style="grid-column:2;grid-row:3">${bottom.map((i) => tile(i, 'bottom')).join('')}</div>
+    ${corner(0, 3, 3)}
+    ${overlayHTML()}
+  </div>`;
+}
+
+function spaceInfo(idx) { return idx == null ? null : CFG.spaces[idx]; }
+function overlayHTML() {
+  const G = S.G; if (S.anim) return '';
+  if (S.gate && (G.phase === 'question' || G.phase === 'result')) return landingOverlay();
+  if (G.phase === 'question' || G.phase === 'judge') return questionOverlay();
+  if (G.phase === 'result') return resultOverlay();
+  return '';
+}
+function questionOverlay() {
+  const G = S.G; const q = QBY[G.question.id]; const p = G.pending; const sp = spaceInfo(p.space);
+  const at = activeTeam();
+  let kicker; let title; let side = '';
+  if (p.kind === 'buy') { kicker = `Buy this space · ${esc(at.name)}`; title = esc(sp.name); side = money(sp.price); }
+  else if (p.kind === 'defend') { kicker = `Defend the rent · ${esc(at.name)}`; title = esc(sp.name); side = money(p.rent); }
+  else { kicker = `Escape Product Recall · ${esc(at.name)}`; title = 'Product Recall'; side = ''; }
+  const color = sp && sp.chapter ? CFG.chapters[sp.chapter].color : '#C8282D';
+  const ink = ['#7B2D3B', '#C8282D'].includes(color) ? '#fff' : '#1B1B1B';
+  const long = q.prompt.length > 150 ? ' long' : '';
+  let mid;
+  if (q.type === 'blank') {
+    mid = G.phase === 'judge'
+      ? `<div class="ans">Correct answer: ${esc(q.answerText)}</div>`
+      : `<div class="blankbox">Fill in the blank. Teams discuss and say the answer out loud. The host judges it.</div>`;
+  } else {
+    mid = `<div class="opts">${q.options.map((o, i) => `<div class="opt"><i>${q.type === 'tf' ? (i === 0 ? 'T' : 'F') : LETTERS[i]}</i><span>${esc(o)}</span></div>`).join('')}</div>`;
+  }
+  const locked = G.teams.map((t) => `<span class="chip${G.answers[t.id] !== undefined ? ' ok' : ''}">${shp(t.color, t.pawn, 22)}${esc(t.name)}: ${G.answers[t.id] !== undefined ? 'locked in' : 'thinking'}</span>`).join('');
+  const left = Math.max(0, G.question.deadline - Date.now());
+  const timer = G.phase === 'question' ? `<div id="qt" style="display:flex;align-items:center;gap:12px;width:100%"><b style="font-family:var(--display);font-size:34px;min-width:70px">${Math.ceil(left / 1000)}s</b><div class="timerbar"><div style="width:${100 * left / (CFG.questionSeconds * 1000)}%"></div></div></div>` : '';
+  return `<div class="ov full"><div class="hd" style="background:${color};color:${ink}"><div><div class="a">${kicker}</div><div class="b">${title}</div></div><div class="c">${side}</div></div>
+    <div class="bd"><div class="q${long}">${esc(q.prompt)}</div>${mid}${timer}<div class="chips">${locked}</div></div></div>`;
+}
+function landingInfo() {
+  const G = S.G; const at = activeTeam(); const sp = CFG.spaces[S.gate.pos]; const c0 = S.gate.cash0[at.id];
+  const nm = esc(at.name); const p = G.pending;
+  let tone = 'neutral'; let title = esc(sp.name); let lines = []; let go = 'SEE WHAT HAPPENS';
+  if (sp.kind === 'question') {
+    const owner = G.owners[sp.i] ? G.teams.find((t) => t.id === G.owners[sp.i]) : null;
+    const rent = Math.round(sp.price * CFG.rentRate);
+    if (!owner && p && p.kind === 'buy') { lines = [`<b>Empty space.</b> Price ${money(sp.price)}.`, `${nm} answers the question.`, `Right answer: ${nm} buys it. Rent for visitors becomes ${money(rent)}.`, 'Wrong answer: the space stays for sale.']; go = 'SHOW THE QUESTION'; }
+    else if (!owner) { lines = [`<b>Empty space.</b> Price ${money(sp.price)}, but ${nm} has only ${money(c0)}.`, 'No question is asked. The space stays for sale.']; }
+    else if (owner.id === at.id) { lines = [`<b>${nm} already owns this space.</b>`, 'Nothing happens.']; }
+    else { const r = p ? p.rent : rent; lines = [`<b>${esc(owner.name)} owns this space.</b> Rent is ${money(r)}.`, `${nm} answers the question.`, `Right answer: ${nm} pays nothing.`, `Wrong answer: ${nm} pays ${money(r)} to ${esc(owner.name)}.`]; go = 'SHOW THE QUESTION'; }
+  } else if (sp.kind === 'card') {
+    title = sp.deck === 'marketTrend' ? 'Market Trend' : 'Press Release';
+    lines = ['<b>Draw a card.</b>', 'Whatever it says happens straight away. No question is asked.']; go = 'DRAW THE CARD';
+  } else if (sp.kind === 'launch') { lines = [`<b>Launch.</b> ${nm} collects ${money(CFG.launchBonus)}.`, 'No question is asked.']; }
+  else if (sp.kind === 'study') { lines = ['<b>Study Break.</b> A safe stop.', 'Nothing happens.']; }
+  else if (sp.kind === 'recall') { lines = ['<b>Just visiting Product Recall.</b>', 'No effect.']; }
+  else if (sp.kind === 'goToRecall') { lines = [`<b>Go to Product Recall.</b> ${nm} moves there. No Launch money.`, 'On its next turn the team answers a question to leave, or waits one turn.']; go = 'SEND THEM'; tone = 'bad'; }
+  const color = sp.chapter ? CFG.chapters[sp.chapter].color : '#C8282D';
+  return { sp, title, lines, go, color, nm };
+}
+function landingOverlay() {
+  const L = landingInfo(); const ink = ['#7B2D3B', '#C8282D'].includes(L.color) ? '#fff' : '#1B1B1B';
+  const chap = L.sp.chapter ? esc(SHORT[L.sp.chapter]) : '';
+  return `<div class="ov mid"><div class="hd" style="background:${L.color};color:${ink}"><div><div class="a">${L.nm} landed on${chap ? ' · ' + chap : ''}</div><div class="b">${L.title}</div></div></div><div class="bd" style="justify-content:center"><div class="exp" style="font-size:31px;line-height:1.4;display:flex;flex-direction:column;gap:14px">${L.lines.map((x) => `<div>${x}</div>`).join('')}</div><div style="font-size:23px;color:var(--mute)">Click the button on the right when you are ready.</div></div></div>`;
+}
+function describeResult(G) {
+  const r = G.result; const at = activeTeam(); const sp = spaceInfo(r.space);
+  const own = r.owner ? G.teams.find((t) => t.id === r.owner) : null;
+  switch (r.kind) {
+    case 'bought': return { tone: 'good', title: `${sp.name} is yours!`, sub: `${at.name} paid ${money(r.price)}. Rent for visitors is now ${money(E.rentFor(G, r.space))}.` + (r.setComplete ? ' Chapter complete: rent on all five spaces doubles!' : '') };
+    case 'missedBuy': return { tone: 'bad', title: 'Not this time', sub: `${sp.name} stays on the market.` };
+    case 'defended': return { tone: 'good', title: 'Rent defended', sub: `${at.name} pays nothing to ${own.name}.` };
+    case 'rentPaid': return { tone: 'bad', title: `Rent: ${money(r.paid)}`, sub: `${at.name} pays ${own.name} for ${sp.name}.` + (r.paid < r.rent ? ' That was all the cash they had.' : '') };
+    case 'cantAfford': return { tone: 'warn', title: 'Short on cash', sub: `${sp.name} costs ${money(r.price)} and ${at.name} has ${money(at.cash)}. No question this time.` };
+    case 'ownSpace': return { tone: 'neutral', title: 'Your own space', sub: `${at.name} already owns ${sp.name}. Nothing to do.` };
+    case 'launch': return { tone: 'good', title: 'Launch!', sub: `${at.name} landed exactly on Launch and collected ${money(CFG.launchBonus)}.` };
+    case 'study': return { tone: 'neutral', title: 'Study Break', sub: 'A safe stop. Nothing happens. Take a breath.' };
+    case 'visitRecall': return { tone: 'neutral', title: 'Just visiting', sub: 'Product Recall has no effect on visitors.' };
+    case 'goToRecall': return { tone: 'bad', title: 'Sent to Product Recall', sub: `No Launch money. On the next turn, ${at.name} answers a question to leave, or waits one turn.` };
+    case 'card': return { tone: (r.card.effect.type === 'cash' && r.card.effect.amount < 0) || r.card.effect.type === 'goToRecall' ? 'bad' : 'good', title: r.deck === 'marketTrend' ? 'Market Trend' : 'Press Release', card: r.card.text };
+    case 'recallWait': return { tone: 'neutral', title: 'Waiting it out', sub: `${at.name} sits this turn out and leaves Product Recall.` };
+    case 'recallMissed': return { tone: 'bad', title: 'Missed it', sub: `${at.name} sits this turn out and leaves Product Recall.` };
+    default: return { tone: 'neutral', title: 'Done', sub: '' };
+  }
+}
+function resultOverlay() {
+  const G = S.G; const r = G.result; const d = describeResult(G); const rv = r.reveal;
+  let reveal = '';
+  if (rv) {
+    const q = QBY[rv.questionId];
+    const ids = Object.keys(rv.teamAnswers);
+    const tally = q.type === 'blank' ? '' : `<div class="exp"><b>${ids.filter((i) => rv.teamAnswers[i] === q.answerIndex).length} of ${G.teams.length}</b> teams got it right.</div>`;
+    reveal = `<div class="ans">Answer: ${esc(rv.correctAnswer)}</div><div class="exp">${esc(rv.explanation)}</div>${tally}`;
+  }
+  const card = d.card ? `<div class="cardface">${esc(d.card)}</div>` : '';
+  const c0 = S.cash0 || {}; const atId = activeTeam().id;
+  const order = G.teams.slice().sort((a, b) => (a.id === atId ? -1 : 0) - (b.id === atId ? -1 : 0));
+  const scores = `<div class="scores">${order.map((t) => { const dl = c0[t.id] === undefined ? 0 : t.cash - c0[t.id]; const dtxt = dl === 0 ? '' : `<em class="${dl > 0 ? 'up' : 'dn'}">${dl > 0 ? '+' : '−'}${money(Math.abs(dl))}</em>`; return `<div class="sc${t.id === atId ? ' me' : ''}">${shp(t.color, t.pawn, 24)}<span class="n">${esc(t.name)}</span><span class="m">${money(t.cash)}</span>${dtxt}<span class="w">worth ${money(E.netWorth(G, t.id))}</span></div>`; }).join('')}</div>`;
+  return `<div class="ov mid tone-${d.tone}"><div class="hd"><div class="b">${esc(d.title)}</div></div><div class="bd" style="gap:14px">${d.sub ? `<div class="exp" style="font-size:26px">${esc(d.sub)}</div>` : ''}${card}${reveal}${scores}</div></div>`;
+}
+
+function leftHTML() {
+  const G = S.G; const at = activeTeam();
+  const teams = G.teams.map((t0) => {
+    const t = S.gate ? { ...t0, cash: S.gate.cash0[t0.id] } : t0;
+    const n = Object.values(G.owners).filter((o) => o === t.id).length;
+    return `<div class="team${t.id === at.id && G.phase !== 'ended' ? ' on' : ''}">${shp(t.color, t.pawn, 30)}<div style="flex:1;min-width:0"><div class="nm">${esc(t.name)}</div><div class="sub">${n} space${n === 1 ? '' : 's'} · ${money(E.netWorth(G, t.id))}</div></div><div><div class="cash">${money(t.cash)}</div>${t.id === at.id ? '<span class="tag">ON TURN</span>' : (t.inRecall ? '<span class="tag" style="background:var(--red)">RECALL</span>' : '')}</div></div>`;
+  }).join('');
+  const sets = Object.entries(CFG.chapters).map(([id, ch]) => {
+    const idx = CFG.spaces.filter((s) => s.chapter === id).map((s) => s.i);
+    const mine = G.teams.map((t) => ({ t, n: idx.filter((i) => G.owners[i] === t.id).length })).sort((a, b) => b.n - a.n)[0];
+    const txt = mine.n === 0 ? 'unowned' : (mine.n === 5 ? `${esc(mine.t.name)} owns all` : `${mine.n} of 5 · ${esc(mine.t.name)}`);
+    return `<div class="setrow"><span class="sw" style="background:${ch.color}"></span><span>${esc(SHORT[id])}</span><span class="ct">${txt}</span></div>`;
+  }).join('');
+  return `<div class="lcol"><div class="panel"><h2>Scoreboard</h2>${teams}</div><div class="panel" style="flex:1"><h2>Chapter sets</h2><div style="font-size:16px;color:var(--mute);line-height:1.3;margin-bottom:4px">Own all five of a colour: rent doubles.</div>${sets}</div></div>`;
+}
+function renderDice() {
+  const el = $('dice'); if (!el) return;
+  el.innerHTML = diceHTML();
+}
+function diceHTML() {
+  const G = S.G;
+  if (S.anim) { const f = S.anim.rolling ? S.anim.faces : S.anim.dice; return f.map((n) => `<div class="die${S.anim.rolling ? ' roll' : ''}">${dieSVG(n)}</div>`).join(''); }
+  if (G.dice && G.phase !== 'roll') return G.dice.map((n) => `<div class="die">${dieSVG(n)}</div>`).join('');
+  return '<div class="die empty">?</div><div class="die empty">?</div>';
+}
+function rightHTML() {
+  const G = S.G; const at = activeTeam(); const st = E.nextStep(G, Date.now());
+  const labels = ['Roll the dice', 'Move your token', 'Answer the question', 'See the result'];
+  const steps = labels.map((l, i) => `<div class="st ${i + 1 === st.step ? 'now' : (i + 1 < st.step ? 'done' : '')}"><b>${i + 1 < st.step ? '✓' : i + 1}</b>${l}</div>`).join('');
+  const en = st.enabled; let controls;
+  if (S.gate) { const L = landingInfo(); controls = `<button class="btn" data-act="gate-go">${L.go}</button>`; }
+  else if (G.phase === 'roll' && at.inRecall) controls = `<div class="pair"><button class="btn sm good" data-act="recall-answer" ${en.recallAnswer ? '' : 'disabled'}>ANSWER TO ESCAPE</button><button class="btn sm alt" data-act="recall-wait" ${en.recallWait ? '' : 'disabled'}>WAIT A TURN</button></div>`;
+  else if (G.phase === 'judge') controls = `<div class="pair"><button class="btn good" data-act="judge-yes">CORRECT</button><button class="btn bad" data-act="judge-no">WRONG</button></div>`;
+  else if (G.phase === 'question') controls = `<button class="btn" data-act="reveal">REVEAL ANSWER</button><div style="text-align:center;font-size:22px;font-weight:600;margin-top:8px">${st.progress.locked} of ${st.progress.teams} teams locked in</div>`;
+  else if (G.phase === 'result') controls = `<button class="btn" data-act="next">NEXT TEAM</button>`;
+  else controls = `<button class="btn" data-act="roll" ${en.roll ? '' : 'disabled'}>${G.phase === 'move' ? 'MOVING…' : 'ROLL DICE'}</button>`;
+  const notice = (G.phase === 'roll' && G.escaped && G.escaped.reveal) ? `<div class="notice"><b>Correct! Free from Recall.</b><br>Answer: ${esc(G.escaped.reveal.correctAnswer)}. ${esc(G.escaped.reveal.explanation)}</div>` : '';
+  const log = G.log.slice(-6).reverse().map((l) => `<div class="log">${esc(fmtMoney(l.text))}</div>`).join('');
+  return `<div class="rcol"><div class="panel"><div style="display:flex;align-items:center;gap:12px">${shp(at.color, at.pawn, 32)}<div style="font-family:var(--display);font-size:30px;line-height:1.05">${esc(at.name)}</div></div>
+    <div class="steps">${steps}</div><div class="dice" id="dice">${diceHTML()}</div><div style="text-align:center;font-size:24px;font-weight:700;min-height:34px">${S.anim && !S.anim.rolling ? `Moving: step ${S.anim.k} of ${S.anim.n}` : (S.anim ? 'Rolling…' : '')}</div>${controls}${notice}</div>
+    <div class="panel" style="flex:1;min-height:0;overflow:hidden"><h2>Game log</h2>${log}</div></div>`;
+}
+const RULES = [
+  ['Money', 'Every team starts with $1,500. Passing or landing on Launch pays $200.'],
+  ['Empty space', 'The team on turn answers. Right: it buys the space at the price shown. Wrong: the space stays for sale. Not enough cash: no question, no purchase.'],
+  ["A rival's space", 'The team on turn answers. Right: it pays nothing. Wrong: it pays rent to the owner, 10% of the space price. A team that cannot cover the rent pays what it has.'],
+  ['Full colour', 'Own all five spaces of one colour and the rent on all five doubles.'],
+  ['Your own space', 'Nothing happens.'],
+  ['Cards', 'Market Trend and Press Release spaces: draw a card and follow it right away. Some pay $100 to $200, some cost $100 or $150, one moves you to Launch for $200, one sends you to Recall.'],
+  ['Go to Recall', 'The corner sends you to Product Recall, with no Launch money. On your next turn, answer a question to leave and roll (wrong: you miss that turn and are released), or wait one turn.'],
+  ['Safe corners', 'Study Break: nothing happens. Landing on Product Recall while just visiting: nothing happens.'],
+  ['Who is scored', 'Only the team on turn. Every team answers on its phone, but the other teams win or lose nothing on that question.'],
+  ['Winning', 'When time runs out, the round finishes. Most money plus the price of owned spaces wins.']
+];
+function rulesModal() {
+  return `<div class="modal"><div class="panel" style="width:1500px"><h2 style="font-size:44px">Rules at a glance</h2><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 40px;font-size:25px;line-height:1.3">${RULES.map(([a, b]) => `<div><b>${a}.</b> ${b}</div>`).join('')}</div><div style="margin-top:22px"><button class="btn" data-act="rules-ok" style="width:420px;margin:0 auto">BACK TO THE GAME</button></div></div></div>`;
+}
+function gameHTML() {
+  const G = S.G; const st = G.phase === 'ended' ? null : E.nextStep(G, Date.now());
+  const bmsg = S.gate ? `${activeTeam().name} landed on ${CFG.spaces[S.gate.pos].name}. Read the rule, then click.` : st && st.banner;
+  const banner = st ? `<div class="banner" role="status" aria-live="polite"><div class="step">STEP ${st.step} OF ${st.of}</div><div class="msg">${esc(fmtMoney(bmsg))}</div><div class="hint">Only the highlighted button works.</div></div>` : '';
+  const how = S.showHow ? `<div class="modal"><div class="panel"><h2 style="font-size:40px">How a turn works</h2><ol><li>Roll the dice.</li><li>Your token moves by itself.</li><li>Everyone answers on their phone. Only the team on turn is scored.</li><li>See the result, then press Next team.</li></ol><div style="font-size:24px;margin-bottom:18px">Correct answer on an empty space: you buy it. Land on a rival's space: answer to defend the rent, or pay it. The highlighted button always shows what to do next. The Rules button at the bottom right shows every rule.</div><button class="btn" data-act="how-ok">GOT IT</button></div></div>` : '';
+  return `${banner}<div class="row">${leftHTML()}${boardHTML()}${rightHTML()}</div>${how}${S.showRules ? rulesModal() : ''}<div style="position:absolute;right:40px;bottom:6px;display:flex;gap:10px"><button class="link" data-act="fs" style="font-size:22px;font-weight:700;color:var(--yellow)">Full screen</button><button class="link" data-act="rules" style="font-size:22px;font-weight:700;color:var(--yellow)">Rules</button><button class="link" data-act="end-now">${S.endArmed ? 'Click again to end the game now' : 'End game'}</button></div>`;
+}
+
+/* ---- setup / lobby / end ---- */
+function setupHTML() {
+  const n = S.setup.seats;
+  const names = Array.from({ length: n }, (_, i) => `<div class="field">${shp(TEAM_STYLE[i].color, TEAM_STYLE[i].shape, 34)}<input id="nm${i}" aria-label="Team ${i + 1} name" value="${esc(S.names[i])}" maxlength="20" data-name="${i}"></div>`).join('');
+  const seatBtns = [2, 3, 4, 5, 6].map((k) => `<button class="${k === n ? 'on' : ''}" data-act="seats" data-v="${k}">${k}</button>`).join('');
+  const minBtns = [30, 45, 60, 75, 90].map((k) => `<button class="${k === S.setup.minutes ? 'on' : ''}" data-act="minutes" data-v="${k}">${k}</button>`).join('');
+  const res = S.resume && S.resume.G ? `<button class="btn quiet" data-act="resume">Resume the saved game (${esc(S.resume.code)})</button>` : '';
+  return `<div class="screen"><div class="hero"><div style="margin-top:24px"><div class="logo">MARKETING MOGUL</div></div><div class="sub1" style="margin-top:22px;color:var(--cream)">EXAM 4 REVIEW GAME</div>
+    <div class="panel" style="margin-top:30px"><h2>Four steps to play</h2><div style="font-size:26px;line-height:1.5">1. Roll the dice and your token moves.<br>2. Everyone answers on their phone.<br>3. Right answer on an empty space: buy it.<br>4. Land on a rival's space: answer to defend the rent.<br><br><b>Most money and property when time runs out wins.</b></div></div></div>
+    <div class="panel" style="width:700px;margin-top:24px"><h2>Set up the game</h2>
+      <div class="lbl">How many teams</div><div class="pill">${seatBtns}</div>
+      <div class="lbl">Team names</div>${names}
+      <div class="lbl">Game length (minutes)</div><div class="pill">${minBtns}</div>
+      <div style="height:16px"></div><button class="btn" data-act="lobby">OPEN THE LOBBY FOR PHONES</button><button class="btn alt sm" data-act="demo" style="margin-top:10px">TRY A DEMO ON THIS SCREEN (${n} PRACTICE TEAMS)</button>${res}
+    </div></div>`;
+}
+function lobbyHTML() {
+  const joined = S.seats.filter((s) => s.owner).length;
+  const seats = S.seats.map((s) => `<div class="seat${s.owner ? ' in' : ''}">${shp(s.color, s.shape, 38)}<span>${esc(s.name)}</span><span class="s2">${s.owner ? 'Joined' : 'Waiting…'}</span></div>`).join('');
+  return `<div class="screen"><div class="panel" style="width:900px;text-align:center;margin-top:20px"><div class="lbl" style="margin-top:0">Join on your phone</div>
+    <div style="display:flex;gap:30px;align-items:center;justify-content:center"><div style="width:230px;height:230px;border:3px solid var(--ink);background:#fff;padding:6px" aria-label="QR code for the phone page">${QR_SVG}</div>
+    <div style="text-align:left;font-size:25px;line-height:1.4"><div>1. Scan the code, or open<br><b style="font-size:21px;word-break:break-all">${esc(PHONE_URL.replace(/^https:\/\//, ''))}</b></div><div style="margin-top:10px">2. Enter this code:</div></div></div>
+    <div class="code" aria-label="Join code ${S.code.split('').join(' ')}">${S.code}</div></div>
+    <div class="panel" style="width:640px;margin-top:20px"><h2>Teams (${joined} joined)</h2>${seats}
+      <button class="btn" data-act="start" ${joined >= 2 ? '' : 'disabled'}>${joined >= 2 ? 'START THE GAME' : 'WAITING FOR 2 TEAMS…'}</button>
+      <button class="btn quiet sm" data-act="back" style="margin-top:12px">Back to setup</button></div></div>`;
+}
+function endHTML() {
+  const G = S.G; const f = G.final;
+  const info = (id) => G.teams.find((t) => t.id === id);
+  const order = [1, 0, 2].filter((k) => f[k]);
+  const heights = { 0: 330, 1: 270, 2: 230 };
+  const pod = order.map((k) => { const t = info(f[k].teamId); return `<div class="pod" style="height:${heights[k]}px;background:${k === 0 ? '#FFE9A8' : '#fff'}"><div class="rk">${k + 1}</div>${shp(t.color, t.pawn, 44)}<div class="pn">${esc(f[k].name)}</div><div class="nw">${money(f[k].netWorth)}</div></div>`; }).join('');
+  const rows = f.map((r, i) => { const t = info(r.teamId); return `<tr><td>${i + 1}</td><td style="display:flex;gap:10px;align-items:center">${shp(t.color, t.pawn, 24)}${esc(r.name)}</td><td class="n">${money(r.cash)}</td><td class="n">${r.spaces}</td><td class="n"><b>${money(r.netWorth)}</b></td></tr>`; }).join('');
+  return `<div class="screen" style="flex-direction:column;align-items:center"><div class="logo" style="margin-top:6px">GAME OVER</div>
+    <div style="color:var(--cream);font-size:34px;font-weight:700;margin-top:18px">${esc(f[0].name)} wins with ${money(f[0].netWorth)}!</div>
+    <div class="podium">${pod}</div>
+    <div class="panel" style="width:1100px"><table class="res"><tr><th>#</th><th>Team</th><th class="n">Cash</th><th class="n">Spaces</th><th class="n">Net worth</th></tr>${rows}</table>
+    <div style="font-size:19px;color:var(--mute);margin-top:8px">Net worth is cash plus the price of every space owned.</div></div>
+    <button class="btn" style="width:520px;margin-top:20px" data-act="again">PLAY AGAIN</button></div>`;
+}
+
+function render() {
+  if (isPhone) return;
+  let html;
+  if (S.screen === 'setup') html = setupHTML();
+  else if (S.screen === 'lobby') html = lobbyHTML();
+  else if (S.G && S.G.phase === 'ended') html = endHTML();
+  else html = gameHTML();
+  const keep = document.activeElement && document.activeElement.id;
+  $stage.innerHTML = html;
+  if (keep) { const e = $(keep); if (e && e.tagName === 'INPUT') { e.focus(); } }
+}
+
+/* ---- clicks ---- */
+$stage.addEventListener('input', (e) => { const i = e.target.dataset && e.target.dataset.name; if (i !== undefined) S.names[Number(i)] = e.target.value; });
+$stage.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+  const a = b.dataset.act; const v = b.dataset.v;
+  if (a === 'seats') { S.setup.seats = Number(v); render(); }
+  else if (a === 'minutes') { S.setup.minutes = Number(v); render(); }
+  else if (a === 'lobby') { S.net = null; S.code = newCode(); S.seats = makeSeats(S.setup.seats).map((s, i) => ({ ...s, name: (S.names[i] || '').trim() || 'Team ' + (i + 1) })); S.screen = 'lobby'; S.demo = false; ensureNet(); persist(); publish(); render(); }
+  else if (a === 'back') { S.screen = 'setup'; render(); }
+  else if (a === 'demo') { S.net = null; S.code = newCode(); S.demo = true; S.seats = makeSeats(S.setup.seats).map((s, i) => ({ ...s, name: (S.names[i] || '').trim() || 'Team ' + (i + 1), owner: 'bot' })); ensureNet(); startGame(); }
+  else if (a === 'start') startGame();
+  else if (a === 'resume') resumeGame();
+  else if (a === 'roll') dispatch({ type: 'ROLL' });
+  else if (a === 'recall-answer') dispatch({ type: 'RECALL_CHOICE', choice: 'answer' });
+  else if (a === 'recall-wait') dispatch({ type: 'RECALL_CHOICE', choice: 'wait' });
+  else if (a === 'reveal') dispatch({ type: 'REVEAL' });
+  else if (a === 'judge-yes') dispatch({ type: 'JUDGE', correct: true });
+  else if (a === 'judge-no') dispatch({ type: 'JUDGE', correct: false });
+  else if (a === 'next') dispatch({ type: 'NEXT_TEAM' });
+  else if (a === 'gate-go') { S.gate = null; publish(); render(); }
+  else if (a === 'how-ok') { S.showHow = false; render(); }
+  else if (a === 'fs') { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { /* ignore */ } }
+  else if (a === 'rules') { S.showRules = true; render(); }
+  else if (a === 'rules-ok') { S.showRules = false; render(); }
+  else if (a === 'end-now') { if (S.endArmed) { S.endArmed = false; dispatch({ type: 'END_NOW' }); } else { S.endArmed = true; render(); } }
+  else if (a === 'again') { store.del('mogul-host'); S.resume = null; S.G = null; S.screen = 'setup'; S.net = null; S.demo = false; render(); }
+});
+function startGame() {
+  const used = S.seats.filter((s) => s.owner);
+  if (used.length < 2) return;
+  S.G = E.createGame({ teams: used.map((s) => ({ id: s.id, name: s.name, color: s.color, pawn: s.shape })), timeLimitMinutes: S.setup.minutes, seed: Date.now() & 0xffffff, now: Date.now() });
+  S.screen = 'game'; S.showHow = true; S.sig = '';
+  persist(); publish(); render();
+}
+function resumeGame() {
+  const r = S.resume; if (!r) return;
+  S.code = r.code; S.seats = r.seats; S.G = r.G; S.screen = r.screen === 'lobby' ? 'lobby' : 'game'; S.demo = r.demo; S.names = r.names || S.names; S.setup = r.setup || S.setup;
+  ensureNet(); render(); publish();
+  if (S.G && S.G.phase === 'move') dispatch({ type: 'MOVE_DONE' });
+}
+
+/* ===================== phone ===================== */
+const P = { code: '', device: null, seat: null, snap: null, recv: 0, sel: null, sent: {}, net: null, helloTimer: null, since: 0, error: '' };
+function phoneInit() {
+  document.documentElement.style.overflow = 'auto';
+  $stage.style.display = 'none'; const root = $('phone'); root.style.display = 'flex';
+  const saved = store.get('mogul-phone') || {};
+  P.device = saved.device || (Math.random().toString(36).slice(2) + Date.now().toString(36));
+  const urlCode = (new URLSearchParams(location.search).get('code') || '').toUpperCase();
+  P.code = urlCode || saved.code || ''; P.seat = saved.code === P.code ? saved.seat : null;
+  store.set('mogul-phone', { device: P.device, code: P.code, seat: P.seat });
+  if (P.code.length === 4) phoneConnect();
+  phoneRender();
+  setInterval(phoneTick, 1000);
+}
+function phoneSave() { store.set('mogul-phone', { device: P.device, code: P.code, seat: P.seat }); }
+function phoneConnect() {
+  P.snap = null; P.since = Date.now();
+  P.net = openNet(P.code, (m) => {
+    if (m && m.t === 'snap' && m.code === P.code) { P.snap = m; P.recv = Date.now(); phoneRender(); }
+  }, showStatus);
+  clearInterval(P.helloTimer);
+  const hello = () => { if (!P.snap || Date.now() - P.recv > 8000) P.net.send({ t: 'hello', device: P.device }); };
+  hello(); P.helloTimer = setInterval(hello, 2000);
+}
+function phoneTick() {
+  const t = $('pt'); if (t && P.snap) {
+    const v = P.snap.views && P.snap.views[P.seat];
+    if (v && v.question) { const left = Math.max(0, v.question.secondsLeft - (Date.now() - P.recv) / 1000); t.querySelector('b').textContent = Math.ceil(left) + 's'; t.querySelector('.ph-timer div').style.width = (100 * left / CFG.questionSeconds) + '%'; }
+  }
+  if (!P.snap && P.code && Date.now() - P.since > 10000 && !P.error) { P.error = 'notfound'; phoneRender(); }
+}
+function phTop(seat, cash) {
+  return `<div class="ph-top"><div class="who">${seat ? `<span style="background:var(--cream);border-radius:50%;padding:5px;display:inline-flex">${shp(seat.color, seat.shape, 26)}</span>` : ''}<span class="t">${seat ? esc(seat.name) : 'Marketing Mogul'}</span></div><div class="cash">${cash != null ? money(cash) : ''}</div></div>`;
+}
+function phoneRender() {
+  const root = $('phone'); const s = P.snap;
+  if (document.activeElement && document.activeElement.id === 'codein') return;
+  if (P.code.length !== 4 || P.error === 'badcode') {
+    root.innerHTML = `${phTop(null)}<div class="ph-card"><div class="h"><small>Marketing Mogul</small><b>Join the game</b></div><div class="b"><div class="ph-sub">Enter the 4-letter code shown on the big screen.</div><input class="ph-in" id="codein" maxlength="4" autocomplete="off" autocapitalize="characters" aria-label="Join code" value="${esc(P.code)}"><button class="ph-btn" data-p="code">JOIN</button></div></div>`;
+    return;
+  }
+  if (!s) {
+    root.innerHTML = `${phTop(null)}<div class="ph-card"><div class="h"><small>Game ${esc(P.code)}</small><b>${P.error === 'notfound' ? 'Cannot find the game' : 'Looking for the game…'}</b></div><div class="b"><div class="ph-sub">${P.error === 'notfound' ? 'Check the code, and ask your instructor to open the lobby. This page keeps trying.' : 'This takes a few seconds.'}</div><button class="ph-btn" data-p="change" style="background:#fff;color:var(--ink)">USE A DIFFERENT CODE</button></div></div>`;
+    return;
+  }
+  const mine = s.seats.find((x) => x.id === P.seat && x.owner === P.device);
+  if (!mine) {
+    if (s.mode !== 'lobby') {
+      root.innerHTML = `${phTop(null)}<div class="ph-card"><div class="h"><small>Game ${esc(P.code)}</small><b>Game in progress</b></div><div class="b"><div class="ph-sub">This game has already started and your phone does not have a team. Ask your instructor.</div><button class="ph-btn" data-p="change" style="background:#fff;color:var(--ink)">USE A DIFFERENT CODE</button></div></div>`;
+      return;
+    }
+    const seats = s.seats.map((x) => `<button class="ph-seat" data-p="claim" data-seat="${x.id}" ${x.owner ? 'disabled' : ''}>${shp(x.color, x.shape, 34)}<span>${esc(x.name)}</span><span style="margin-left:auto;font-size:15px;font-weight:600">${x.owner ? 'Taken' : ''}</span></button>`).join('');
+    root.innerHTML = `${phTop(null)}<div class="ph-card"><div class="h"><small>Game ${esc(P.code)}</small><b>Pick your team</b></div><div class="b">${seats}</div></div><div class="ph-note">One phone per team. Pick the team your group agreed on.</div>`;
+    return;
+  }
+  const v = s.views && s.views[P.seat];
+  const cash = v ? v.you.cash : null;
+  if (s.mode === 'lobby' || !v) {
+    root.innerHTML = `${phTop(mine, cash)}<div class="ph-card"><div class="h"><small>Game ${esc(P.code)}</small><b>You are in</b></div><div class="b"><div class="ph-big">${esc(mine.name)}</div><div class="ph-sub">Waiting for the instructor to start the game. Keep this page open.</div><button class="ph-btn" data-p="leave" style="background:#fff;color:var(--ink)">NOT MY TEAM</button></div></div>`;
+    return;
+  }
+  const act = v.activeTeamId === P.seat;
+  if (s.phase === 'ended') {
+    const f = s.final || []; const i = f.findIndex((r) => r.teamId === P.seat);
+    root.innerHTML = `${phTop(mine, cash)}<div class="ph-card"><div class="h"><small>Game over</small><b>Final place</b></div><div class="b"><div class="ph-big" style="font-size:70px">${i + 1}</div><div class="ph-sub">${esc(mine.name)} finished with ${money(f[i] ? f[i].netWorth : cash)} in cash and property.</div></div></div>`;
+    return;
+  }
+  if (s.phase === 'question' && v.question) {
+    const q = v.question; const key = [s.round, v.activeTeamId, q.id, q.deadline].join('-');
+    const locked = q.lockedIn || P.sent[key];
+    let body;
+    if (q.type === 'blank') {
+      body = `<div class="ph-q">${esc(q.prompt)}</div><div class="ph-sub">Talk it over with your team and say the answer out loud. The instructor judges it. Press the button when your team is ready.</div><button class="ph-btn" data-p="lock" data-key="${key}" data-i="-1" ${locked ? 'disabled' : ''}>${locked ? 'LOCKED IN' : 'WE HAVE AN ANSWER'}</button>`;
+    } else {
+      const sel = P.sel && P.sel.key === key ? P.sel.i : null;
+      const yours = q.yourAnswer;
+      body = `<div class="ph-q">${esc(q.prompt)}</div>` + q.options.map((o, i) => `<button class="ph-opt${(locked ? yours === i : sel === i) ? ' sel' : ''}" data-p="pick" data-key="${key}" data-i="${i}" ${locked ? 'disabled' : ''}><i>${q.type === 'tf' ? (i === 0 ? 'T' : 'F') : LETTERS[i]}</i><span>${esc(o)}</span></button>`).join('')
+        + `<button class="ph-btn" data-p="lock" data-key="${key}" data-i="${sel === null ? '' : sel}" ${locked || sel === null ? 'disabled' : ''}>${locked ? 'LOCKED IN. WAITING FOR THE REVEAL' : (sel === null ? 'PICK AN ANSWER' : 'LOCK IN: ' + (q.type === 'tf' ? (sel === 0 ? 'TRUE' : 'FALSE') : LETTERS[sel]))}</button>`;
+    }
+    const note = act ? 'Your team is on turn. Your answer counts.' : `Only ${esc(v.activeName)} is scored on this one. Answer anyway to test yourself.`;
+    const left = Math.max(0, q.secondsLeft - (Date.now() - P.recv) / 1000);
+    root.innerHTML = `${phTop(mine, cash)}<div class="ph-card"><div class="h"><small>${act ? 'Your turn' : esc(v.activeName) + ' is on turn'}</small><b>${q.type === 'tf' ? 'True or false' : (q.type === 'mc' ? 'Multiple choice' : 'Fill in the blank')}</b></div><div class="b">${body}<div id="pt"><b style="font-family:var(--display);font-size:22px">${Math.ceil(left)}s</b><div class="ph-timer" style="margin-top:4px"><div style="width:${100 * left / CFG.questionSeconds}%"></div></div></div></div></div><div class="ph-note">${note}</div>`;
+    return;
+  }
+  if (s.phase === 'result' && v.result) {
+    const rv = v.result.reveal;
+    let verdict = '';
+    if (v.youCorrect === true) verdict = '<div class="ph-big" style="color:var(--good)">You got it right</div>';
+    else if (v.youCorrect === false) verdict = '<div class="ph-big" style="color:var(--bad)">Not this time</div>';
+    const ans = rv ? `<div class="ph-sub"><b>Answer:</b> ${esc(rv.correctAnswer)}</div><div class="ph-sub">${esc(rv.explanation)}</div>` : '';
+    const tally = v.result.tally ? `<div class="ph-sub"><b>${v.result.tally.right} of ${v.result.tally.total}</b> teams got it right.</div>` : '';
+    root.innerHTML = `${phTop(mine, cash)}<div class="ph-card"><div class="h"><small>${act ? 'Your result' : 'Result for ' + esc(v.activeName)}</small><b>Result</b></div><div class="b">${verdict}<div class="ph-sub" style="font-weight:700">${esc(v.result.summary)}</div>${ans}${tally}</div></div><div class="ph-note">Watch the big screen. The instructor presses Next team.</div>`;
+    return;
+  }
+  const msg = { roll: act ? 'Your turn. Look at the big screen: the instructor rolls the dice.' : `${esc(v.activeName)} is about to roll.`, move: `${esc(v.activeName)} is moving.`, judge: 'The instructor is judging the answer.', landed: `${esc(v.activeName)} has landed. Watch the big screen. The question comes next.`, question: 'Get ready.', result: '' }[s.phase] || '';
+  const deeds = v.you.deeds.length;
+  root.innerHTML = `${phTop(mine, cash)}<div class="ph-card"><div class="h"><small>Round ${s.round}</small><b>${act ? 'Your turn' : esc(v.activeName) + ' is on turn'}</b></div><div class="b"><div class="ph-sub">${msg}</div><div class="ph-sub"><b>${deeds}</b> space${deeds === 1 ? '' : 's'} owned · worth <b>${money(v.you.netWorth)}</b></div>${v.you.inRecall ? '<div class="ph-sub" style="color:var(--bad);font-weight:700">Your team is in Product Recall.</div>' : ''}</div></div>`;
+}
+document.addEventListener('click', (e) => {
+  if (!isPhone) return;
+  const b = e.target.closest('[data-p]'); if (!b || b.disabled) return;
+  const a = b.dataset.p;
+  if (a === 'code') { const val = ($('codein').value || '').toUpperCase().replace(/[^A-Z]/g, ''); if (val.length === 4) { P.code = val; P.error = ''; P.seat = null; phoneSave(); phoneConnect(); phoneRender(); } }
+  else if (a === 'change') { P.code = ''; P.snap = null; P.seat = null; P.error = ''; clearInterval(P.helloTimer); phoneSave(); phoneRender(); }
+  else if (a === 'claim') { P.seat = b.dataset.seat; phoneSave(); P.net.send({ t: 'claim', seat: P.seat, device: P.device }); }
+  else if (a === 'leave') { P.net.send({ t: 'release', seat: P.seat, device: P.device }); P.seat = null; phoneSave(); phoneRender(); }
+  else if (a === 'pick') { P.sel = { key: b.dataset.key, i: Number(b.dataset.i) }; phoneRender(); }
+  else if (a === 'lock') {
+    const i = Number(b.dataset.i); const key = b.dataset.key;
+    if (b.dataset.i === '') return;
+    P.sent[key] = true; P.net.send({ t: 'answer', seat: P.seat, device: P.device, answer: i }); phoneRender();
+  }
+});
+document.addEventListener('keydown', (e) => { if (isPhone && e.key === 'Enter' && document.activeElement && document.activeElement.id === 'codein') { document.activeElement.blur(); const b = document.querySelector('[data-p="code"]'); if (b) b.click(); } });
+
+/* ===================== start ===================== */
+if (isPhone) phoneInit();
+else { fit(); render(); }
+</script>
+</body>
+</html>
