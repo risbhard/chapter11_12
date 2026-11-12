@@ -170,6 +170,7 @@ export function ControlRow({
         id={id} className="slider mt-1" type="range" min={min} max={max} step={step}
         value={isNum(value) ? value : min}
         onChange={(e) => onChange(Number(e.target.value))}
+        onPointerUp={(e) => e.currentTarget.blur()}
         aria-label={label}
       />
     </div>

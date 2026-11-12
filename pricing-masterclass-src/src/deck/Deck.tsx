@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Expand, Minimize, NotebookPen, RotateCcw } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { ChevronLeft, ChevronRight, Expand, MonitorUp, Minimize, RotateCcw } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { LectureModule } from './types'
 
 const key = (id: string) => `deck:${id}:index`
@@ -11,34 +11,75 @@ const read = (id: string, max: number) => {
   } catch { return 0 }
 }
 
+export const SYNC_CHANNEL = 'pricing-deck-sync'
+export type SyncMsg =
+  | { t: 'state'; module: string; index: number }
+  | { t: 'nav'; d: 1 | -1 }
+  | { t: 'hello' }
+
 /**
- * Presenter-controlled deck.
- * Navigation is intentionally limited to the Previous / Next buttons (click only):
- * no menu, no topic jumping, no keyboard shortcuts, no auto-advance.
+ * Presenter-controlled deck (projector window).
+ * Navigation: Previous / Next buttons, ← → (also PageUp / PageDown for clickers). No auto-advance.
+ * Instructor notes live in Presenter view (separate window), never on the projected slide.
  */
 export default function Deck({ module }: { module: LectureModule }) {
   const last = module.steps.length - 1
   const [i, setI] = useState(() => read(module.id, last))
   const [dir, setDir] = useState(1)
   const [resetN, setResetN] = useState(0)
-  const [notes, setNotes] = useState(false)
   const [full, setFull] = useState(false)
+  const bc = useRef<BroadcastChannel | null>(null)
+
+  const go = useCallback((d: 1 | -1) => {
+    setDir(d); setResetN(0)
+    setI((n) => Math.min(last, Math.max(0, n + d)))
+  }, [last])
 
   useEffect(() => { try { sessionStorage.setItem(key(module.id), String(i)) } catch { /* ignore */ } }, [i, module.id])
+
+  // keep Presenter view in sync + accept its Next/Previous
+  const iRef = useRef(i); iRef.current = i
+  useEffect(() => {
+    let ch: BroadcastChannel | null = null
+    try { ch = new BroadcastChannel(SYNC_CHANNEL) } catch { return }
+    bc.current = ch
+    ch.onmessage = (e: MessageEvent<SyncMsg>) => {
+      if (e.data.t === 'nav') go(e.data.d)
+      else if (e.data.t === 'hello') ch!.postMessage({ t: 'state', module: module.id, index: iRef.current } satisfies SyncMsg)
+    }
+    ch.postMessage({ t: 'state', module: module.id, index: iRef.current } satisfies SyncMsg)
+    return () => { ch!.close(); bc.current = null }
+  }, [go, module.id])
+  useEffect(() => { bc.current?.postMessage({ t: 'state', module: module.id, index: i } satisfies SyncMsg) }, [i, module.id])
+
   useEffect(() => {
     const f = () => setFull(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', f)
     return () => document.removeEventListener('fullscreenchange', f)
   }, [])
 
-  const go = useCallback((d: 1 | -1) => {
-    setDir(d); setNotes(false); setResetN(0)
-    setI((n) => Math.min(last, Math.max(0, n + d)))
-  }, [last])
-
-  const toggleFull = () => {
+  const toggleFull = useCallback(() => {
     if (document.fullscreenElement) void document.exitFullscreen()
     else void document.documentElement.requestFullscreen?.().catch(() => undefined)
+  }, [])
+
+  // keyboard: ← → PageUp PageDown navigate, F toggles full screen
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t?.closest('input, textarea, select, [contenteditable="true"]')) return
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(1) }
+      else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1) }
+      else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFull() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [go, toggleFull])
+
+  const openPresenter = () => {
+    const base = window.location.href.split('#')[0]
+    window.open(`${base}#/presenter`, 'pricing-presenter', 'width=1180,height=820')
   }
 
   const step = module.steps[i]
@@ -46,7 +87,6 @@ export default function Deck({ module }: { module: LectureModule }) {
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-ink-900">
-      {/* announce slide changes to assistive tech */}
       <div className="sr-only" role="status" aria-live="polite">{`${step.section}. ${step.title}. Slide ${i + 1} of ${last + 1}.`}</div>
 
       <AnimatePresence mode="wait" custom={dir}>
@@ -57,55 +97,35 @@ export default function Deck({ module }: { module: LectureModule }) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 * dir }}
           transition={{ duration: 0.38, ease: 'easeOut' }}
-          className={`absolute inset-0 overflow-y-auto overflow-x-hidden pb-24 pt-14 ${step.cinematic ? 'bg-ink-950' : 'bg-ink-900'}`}
+          className={`absolute inset-0 overflow-y-auto overflow-x-hidden pb-36 pt-14 ${step.cinematic ? 'bg-ink-950' : 'bg-ink-900'}`}
         >
           {step.render()}
         </motion.main>
       </AnimatePresence>
 
-      {/* top-left: section label (not clickable) */}
       <div className={`pointer-events-none absolute left-5 top-4 font-mono text-[0.78rem] uppercase tracking-[0.2em] text-paper-mute ${chromeCls}`}>
         {step.section}
       </div>
 
-      {/* top-right: instructor tools */}
       <div className={`absolute right-4 top-3 flex items-center gap-1 ${chromeCls}`}>
         {step.resettable && (
           <button onClick={() => setResetN((n) => n + 1)} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Reset this slide's simulators">
             <RotateCcw size={16} /> Reset
           </button>
         )}
-        {step.notes && (
-          <button onClick={() => setNotes((n) => !n)} aria-pressed={notes} className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm hover:text-gold ${notes ? 'text-gold' : 'text-paper-dim'}`}>
-            <NotebookPen size={16} /> Notes
-          </button>
-        )}
-        <button onClick={toggleFull} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold">
-          {full ? <Minimize size={16} /> : <Expand size={16} />} {full ? 'Exit full screen' : 'Full screen'}
+        <button onClick={openPresenter} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Open the instructor's Presenter view in a second window">
+          <MonitorUp size={16} /> Presenter view
+        </button>
+        <button onClick={toggleFull} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Full screen (F)">
+          {full ? <Minimize size={16} /> : <Expand size={16} />} {full ? 'Exit full screen' : 'Full screen (F)'}
         </button>
       </div>
 
-      {/* instructor notes */}
-      <AnimatePresence>
-        {notes && step.notes && (
-          <motion.aside
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}
-            className="absolute bottom-24 right-5 z-30 max-w-md rounded-2xl border-2 border-gold/60 bg-ink-950/95 p-5 shadow-2xl"
-            aria-label="Instructor notes"
-          >
-            <p className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-gold">Instructor notes</p>
-            <ul className="mt-2 list-disc space-y-2 pl-5 text-[1.02rem] text-paper">
-              {step.notes.map((n, k) => <li key={k}>{n}</li>)}
-            </ul>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* bottom: previous / progress (display only) / next */}
-      <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-4 px-5 pb-4 pt-6">
+      {/* bottom controls sit well above the OS taskbar / browser edge */}
+      <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between gap-4 px-6 pb-[max(3.5rem,calc(env(safe-area-inset-bottom)+2rem))] pt-6">
         <button
-          onClick={() => go(-1)} disabled={i === 0}
-          className={`flex items-center gap-2 rounded-xl border-2 border-paper/35 px-5 py-3 text-lg font-semibold text-paper transition-colors hover:border-gold hover:text-gold disabled:invisible ${chromeCls}`}
+          onClick={() => go(-1)} disabled={i === 0} title="Previous (←)"
+          className={`flex items-center gap-2 rounded-xl border-2 border-paper/35 bg-ink-900/80 px-5 py-3 text-lg font-semibold text-paper transition-colors hover:border-gold hover:text-gold disabled:invisible ${chromeCls}`}
         >
           <ChevronLeft size={22} /> Previous
         </button>
@@ -115,7 +135,7 @@ export default function Deck({ module }: { module: LectureModule }) {
           </div>
         </div>
         <button
-          onClick={() => go(1)} disabled={i === last}
+          onClick={() => go(1)} disabled={i === last} title="Next (→)"
           className={`flex items-center gap-2 rounded-xl border-2 border-gold bg-gold px-6 py-3 text-lg font-bold text-ink-950 transition-colors hover:bg-[#f0c76a] disabled:invisible ${chromeCls}`}
         >
           Next <ChevronRight size={22} />

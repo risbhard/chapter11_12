@@ -92,6 +92,6 @@ function Bridge() {
 export const brolanSteps: Step[] = [
   { id: 'brolan-intro', section: SEC, title: 'Now, let’s talk about Brolan', cinematic: true, render: () => <Intro /> },
   { id: 'brolan-case', section: SEC, title: 'Case assumptions', render: () => <Dashboard />,
-    notes: ['Read the inputs aloud. Students will do all calculations themselves in the challenge.', 'Prices are advertised US figures; every other number is a fictional classroom assumption.'] },
+    notes: ['Read the inputs aloud. Students will do all calculations themselves in the challenge.', 'Prices are advertised US figures; every other number is a fictional classroom assumption.', 'Worked answers and formulas appear in this Presenter view once your answer key file is loaded.'] },
   { id: 'bridge', section: SEC, title: 'Will customers actually pay it?', cinematic: true, render: () => <Bridge />, notes: ['This question leads into Lecture 2 (qualitative pricing). Do not teach those concepts yet.'] },
 ]

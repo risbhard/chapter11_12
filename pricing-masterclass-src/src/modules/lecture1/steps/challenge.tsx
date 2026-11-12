@@ -18,5 +18,5 @@ function Challenge() {
 
 export const challengeSteps: Step[] = [
   { id: 'challenge', section: '05 · The pricing challenge', title: 'Begin the pricing challenge', cinematic: true, render: () => <Challenge />,
-    notes: ['The button opens the separate activity page. Use "Back to the lecture" there to return to this slide.'] },
+    notes: ['The button opens the challenge page: the five calculations, the case inputs and a QR code for teams to submit results from their phones.', 'Use "Results wall" on that page to show submissions; "Back to the lecture" returns to this slide.', 'Worked answers appear in this Presenter view once your answer key file is loaded.'] },
 ]

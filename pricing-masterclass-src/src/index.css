@@ -11,7 +11,8 @@
 @tailwind utilities;
 
 :root { color-scheme: dark; }
-html, body, #root { height: 100%; }
+html, body { height: 100%; }
+#root { height: 100vh; height: 100dvh; }
 body {
   margin: 0;
   background: #14171c;
