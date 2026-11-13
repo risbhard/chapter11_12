@@ -1,7 +1,8 @@
 /**
- * Chalk-on-slate screech, synthesised with Web Audio (no audio files to host or license).
- * Played while a hand-drawn underline (<Scribble/>) is being drawn. Muted with the speaker button or the M key.
- * Browsers only allow audio after a click/keypress; the deck is navigated by clicks/keys, so it is unlocked by then.
+ * A plain chalk line drawn on a blackboard: a small tap as the chalk touches the board, then a soft, grainy drag.
+ * Synthesised in code (no audio files to host or license) and played while a hand-drawn underline (<Scribble/>) is drawn.
+ * Muted with the speaker button or the M key. Browsers allow audio only after a click/keypress; the deck is navigated by
+ * clicks and keys, so it is unlocked by then.
  */
 let ctx: AudioContext | null = null
 let noise: AudioBuffer | null = null
@@ -30,76 +31,97 @@ function audio(): AudioContext | null {
 /** call from a user gesture (click / key) so later sounds are allowed */
 export function unlockAudio() { audio() }
 
-function noiseBuffer(c: BaseAudioContext) {
-  if (noise && noise.sampleRate === c.sampleRate) return noise
-  const len = Math.floor(c.sampleRate * 2)
-  const b = c.createBuffer(1, len, c.sampleRate)
-  const d = b.getChannelData(0)
-  let seed = 7
-  for (let i = 0; i < len; i++) { seed = (seed * 16807) % 2147483647; d[i] = (seed / 2147483647) * 2 - 1 }
-  noise = b
+/* ───────── synthesis (plain DSP, no Web Audio nodes: easy to test, identical everywhere) ───────── */
+const SR = 44100
+let seed = 11
+const rand = () => { seed = (seed * 16807) % 2147483647; return (seed / 2147483647) * 2 - 1 } // −1..1
+
+/** RBJ biquad, applied in place */
+function biquad(x: Float32Array, kind: 'hp' | 'lp', fc: number, sr: number, q = 0.7071) {
+  const w = (2 * Math.PI * fc) / sr, cw = Math.cos(w), al = Math.sin(w) / (2 * q)
+  const a0 = 1 + al
+  const b = kind === 'lp' ? [(1 - cw) / 2, 1 - cw, (1 - cw) / 2] : [(1 + cw) / 2, -(1 + cw), (1 + cw) / 2]
+  const a1 = (-2 * cw) / a0, a2 = (1 - al) / a0
+  const b0 = b[0] / a0, b1 = b[1] / a0, b2 = b[2] / a0
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0
+  for (let i = 0; i < x.length; i++) {
+    const y = b0 * x[i] + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2
+    x2 = x1; x1 = x[i]; y2 = y1; y1 = y; x[i] = y
+  }
+  return x
+}
+const band = (x: Float32Array, lo: number, hi: number, sr: number) => biquad(biquad(x, 'hp', lo, sr), 'lp', hi, sr)
+const peakOf = (x: Float32Array) => { let m = 1e-9; for (const v of x) m = Math.max(m, Math.abs(v)); return m }
+const scale = (x: Float32Array, to: number) => { const k = to / peakOf(x); for (let i = 0; i < x.length; i++) x[i] *= k; return x }
+
+/** One chalk stroke: `dur` seconds of mono audio, peak 0.4. Deterministic. */
+export function renderChalk(dur = 0.9, sr = SR): Float32Array {
+  seed = 11
+  const n = Math.floor(sr * dur)
+  // pink-ish noise (Paul Kellet), the body of the drag
+  const x = new Float32Array(n)
+  let b0 = 0, b1 = 0, b2 = 0
+  for (let i = 0; i < n; i++) {
+    const w = rand()
+    b0 = 0.99765 * b0 + w * 0.099046; b1 = 0.963 * b1 + w * 0.2965164; b2 = 0.57 * b2 + w * 1.0526913
+    x[i] = b0 + b1 + b2 + w * 0.1848
+  }
+  band(x, 700, 5500, sr)
+  // grain: rectified low-frequency noise makes the surface texture
+  const g = new Float32Array(n)
+  for (let i = 0; i < n; i++) g[i] = rand()
+  band(g, 70, 260, sr)
+  for (let i = 0; i < n; i++) g[i] = Math.abs(g[i])
+  const gm = peakOf(g)
+  // stroke: quick start, steady drag with a little hand wobble, soft lift-off
+  for (let i = 0; i < n; i++) {
+    const t = i / sr
+    const grain = 0.3 + 0.7 * Math.pow(g[i] / gm, 1.4)
+    const speed = Math.pow(Math.sin(Math.PI * Math.min(1, t / dur)), 0.6)
+    const wob = 1 + 0.12 * Math.sin(2 * Math.PI * 7 * t + 1) + 0.06 * Math.sin(2 * Math.PI * 13 * t)
+    const edge = Math.min(1, t / 0.03) * Math.min(1, Math.max(0, (dur - t) / 0.08))
+    x[i] *= grain * speed * wob * edge
+  }
+  scale(x, 0.3)
+  // tap: the chalk touching the board
+  const tap = new Float32Array(n)
+  for (let i = 0; i < n; i++) tap[i] = rand()
+  band(tap, 300, 2500, sr)
+  for (let i = 0; i < n; i++) {
+    const t = i / sr
+    tap[i] = Math.exp(-90 * t) * (tap[i] * 0.9 + Math.sin(2 * Math.PI * 190 * t) * 0.4)
+  }
+  scale(tap, 0.28 * 0.9)
+  for (let i = 0; i < n; i++) x[i] += tap[i]
+  return scale(x, 0.4)
+}
+
+let cache: AudioBuffer | null = null
+function stroke(c: AudioContext): AudioBuffer {
+  if (cache && cache.sampleRate === c.sampleRate) return cache
+  const data = renderChalk(0.9, c.sampleRate)
+  const b = c.createBuffer(1, data.length, c.sampleRate)
+  b.copyToChannel(data as Float32Array<ArrayBuffer>, 0)
+  cache = b
   return b
 }
 
-/**
- * Builds the screech into `c`, starting at `t0`, lasting `dur` seconds. Returns a function that fades it out early.
- * Layers: (1) band-passed noise = chalk grit, with a rising/falling sweep like a moving stroke;
- *         (2) a ~70 Hz stick-slip chop on that grit; (3) a thin, wavering squeal around 2-3 kHz = the screech.
- */
-export function buildChalk(c: BaseAudioContext, out: AudioNode, t0: number, dur: number, peak = 0.5) {
-  const env = c.createGain()
-  env.gain.setValueAtTime(0.0001, t0)
-  env.gain.exponentialRampToValueAtTime(peak, t0 + 0.05)
-  env.gain.setValueAtTime(peak, t0 + Math.max(0.06, dur - 0.14))
-  env.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
-  env.connect(out)
-
-  // 1 + 2: grit with stick-slip
-  const src = c.createBufferSource(); src.buffer = noiseBuffer(c); src.loop = true
-  const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1400
-  const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 4.5
-  bp.frequency.setValueAtTime(2300, t0)
-  bp.frequency.linearRampToValueAtTime(3900, t0 + dur * 0.45)
-  bp.frequency.linearRampToValueAtTime(2800, t0 + dur)
-  const chop = c.createGain(); chop.gain.value = 0.5
-  const lfo = c.createOscillator(); lfo.type = 'square'
-  lfo.frequency.setValueAtTime(64, t0); lfo.frequency.linearRampToValueAtTime(92, t0 + dur)
-  const lfoDepth = c.createGain(); lfoDepth.gain.value = 0.4
-  lfo.connect(lfoDepth); lfoDepth.connect(chop.gain)
-  const grit = c.createGain(); grit.gain.value = 0.55
-  src.connect(hp); hp.connect(bp); bp.connect(chop); chop.connect(grit); grit.connect(env)
-
-  // 3: squeal
-  const sq = c.createOscillator(); sq.type = 'sine'
-  sq.frequency.setValueAtTime(2150, t0)
-  sq.frequency.linearRampToValueAtTime(3050, t0 + dur * 0.5)
-  sq.frequency.linearRampToValueAtTime(2500, t0 + dur)
-  const vib = c.createOscillator(); vib.frequency.value = 9
-  const vibDepth = c.createGain(); vibDepth.gain.value = 55
-  vib.connect(vibDepth); vibDepth.connect(sq.frequency)
-  const sqAmp = c.createGain(); sqAmp.gain.value = 0.07
-  const tremolo = c.createOscillator(); tremolo.frequency.value = 23
-  const tremDepth = c.createGain(); tremDepth.gain.value = 0.04
-  tremolo.connect(tremDepth); tremDepth.connect(sqAmp.gain)
-  sq.connect(sqAmp); sqAmp.connect(env)
-
-  const nodes = [src, lfo, sq, vib, tremolo]
-  nodes.forEach((n) => n.start(t0))
-  nodes.forEach((n) => n.stop(t0 + dur + 0.05))
-  return (now: number) => {
-    env.gain.cancelScheduledValues(now)
-    env.gain.setValueAtTime(Math.max(env.gain.value, 0.0001), now)
-    env.gain.exponentialRampToValueAtTime(0.0001, now + 0.06)
-  }
-}
-
-/** Play one stroke of chalk. Returns a stop function (safe to call any time). */
-export function playChalk(dur = 0.9): () => void {
+/** Play one chalk line. Returns a stop function (safe to call any time). */
+export function playChalk(): () => void {
   if (muted) return () => undefined
   const c = audio()
   if (!c || c.state !== 'running') return () => undefined // blocked until the first click/keypress
-  const master = c.createGain(); master.gain.value = 1.5
-  master.connect(c.destination)
-  const stop = buildChalk(c, master, c.currentTime + 0.02, dur)
-  return () => { stop(c.currentTime); window.setTimeout(() => master.disconnect(), 300) }
+  const src = c.createBufferSource(); src.buffer = stroke(c)
+  const g = c.createGain(); g.gain.value = 1
+  src.connect(g); g.connect(c.destination)
+  src.start()
+  let done = false
+  src.onended = () => { done = true; g.disconnect() }
+  return () => {
+    if (done) return
+    g.gain.cancelScheduledValues(c.currentTime)
+    g.gain.setValueAtTime(g.gain.value, c.currentTime)
+    g.gain.linearRampToValueAtTime(0, c.currentTime + 0.05)
+    try { src.stop(c.currentTime + 0.06) } catch { /* already stopped */ }
+  }
 }

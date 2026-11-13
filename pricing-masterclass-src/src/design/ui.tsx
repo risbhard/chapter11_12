@@ -52,10 +52,10 @@ export const Hand = ({ children, className = '' }: { children: ReactNode; classN
 
 /* ───────────── hand-drawn sketch marks (decorative, purposeful emphasis) ───────────── */
 export function Scribble({ className = '', color = '#e6b655', delay = 0.4 }: { className?: string; color?: string; delay?: number }) {
-  // chalk screech while the underline is drawn (muted via the speaker button / M key)
+  // chalk-line sound while the underline is drawn (muted via the speaker button / M key)
   useEffect(() => {
     let stop: () => void = () => undefined
-    const t = window.setTimeout(() => { stop = playChalk(0.9) }, delay * 1000)
+    const t = window.setTimeout(() => { stop = playChalk() }, delay * 1000)
     return () => { window.clearTimeout(t); stop() }
   }, [delay])
   return (

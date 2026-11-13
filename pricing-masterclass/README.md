@@ -8,7 +8,7 @@ Static build. Serve from the **repo root** so `../config.js` (the shared Ably ke
 On GitHub Pages: https://risbhard.github.io/chapter11_12/pricing-masterclass/
 
 - Lecture 1: `#/lecture-1` (default) · Lecture 2: `#/lecture-2`: https://risbhard.github.io/chapter11_12/pricing-masterclass/#/lecture-2
-- Chalk screech plays on the hand-drawn underlines. **M** (or the Sound button) mutes it. Browsers allow sound only after the first click or key press.
+- A chalk-line sound plays on the hand-drawn underlines. **M** (or the Sound button) mutes it. Browsers allow sound only after the first click or key press.
 
 - Projector: Previous / Next buttons or ← →, **F** = full screen. "Presenter view" opens the notes window.
 - Students scan the QR code on the challenge page (needs the Pages URL, not localhost).
