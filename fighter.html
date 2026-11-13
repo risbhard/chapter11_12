@@ -152,6 +152,7 @@ kbd{display:inline-block;min-width:1.7em;padding:.05em .45em;margin:0 .12em;bord
 .hud{position:absolute;left:12px;top:10px;font-family:var(--display);font-size:30px;color:var(--cream);text-shadow:3px 3px 0 var(--red);pointer-events:none}
 .hud small{font-family:var(--cond);font-size:18px;letter-spacing:2px;display:block;color:var(--yellow);text-shadow:none}
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 <div id="stage"></div>
@@ -200,7 +201,7 @@ const QS_ALL = {
   ]
 }.questions;
 const QS = QS_ALL.filter((q) => q.type === 'mc' || q.type === 'tf');   // fill-in-the-blank questions are not used in this game
-const ABLY_KEY = '4vpy2w.OAzCCA:RlXMETCniEMMoKUPsCuX9T-Z3ljDSSVZ15NKoW7yJH0';
+const ABLY_KEY = window.SBP_ABLY_KEY || ''; // set once in config.js
 const BUILD = '1109-1319';
 const PHONE_URL = 'https://risbhard.github.io/chapter11_12/fighter.html?phone';
 const QR_SVG = `<svg viewBox="0 0 35 35" width="100%" height="100%" shape-rendering="crispEdges" class="segno"><path class="qrline" stroke="#000" d="M1 1.5h7m3 0h1m5 0h2m1 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h1m1 0h2m2 0h1m1 0h1m3 0h2m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h2m5 0h1m2 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h1m5 0h1m1 0h2m1 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m2 0h1m1 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m2 0h1m8 0h1m2 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m2 0h1m1 0h1m1 0h1m3 0h3m1 0h1m-25 1h1m1 0h5m3 0h5m2 0h1m1 0h1m2 0h3m1 0h5m-31 1h1m1 0h1m1 0h1m2 0h4m2 0h2m1 0h1m1 0h6m2 0h2m1 0h4m-33 1h1m2 0h1m1 0h2m1 0h9m1 0h1m2 0h2m1 0h1m3 0h1m1 0h2m-32 1h1m3 0h2m3 0h1m1 0h1m1 0h1m4 0h1m1 0h5m1 0h1m1 0h4m-32 1h2m2 0h1m1 0h2m1 0h3m2 0h2m1 0h1m4 0h1m1 0h1m3 0h2m1 0h1m-32 1h1m4 0h1m3 0h2m4 0h1m2 0h6m2 0h2m2 0h3m-28 1h4m4 0h1m1 0h1m1 0h2m1 0h1m4 0h2m4 0h1m-27 1h1m2 0h3m1 0h4m2 0h1m1 0h2m1 0h1m1 0h3m2 0h1m-29 1h1m2 0h2m2 0h1m2 0h2m1 0h1m1 0h4m1 0h1m1 0h2m1 0h3m2 0h1m-32 1h1m1 0h1m4 0h1m1 0h2m4 0h6m1 0h1m1 0h3m1 0h2m1 0h1m-33 1h2m1 0h2m1 0h4m1 0h1m1 0h4m1 0h1m1 0h1m4 0h4m1 0h2m-31 1h1m1 0h2m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m2 0h1m1 0h8m-30 1h2m3 0h1m2 0h1m1 0h1m1 0h1m3 0h1m1 0h1m4 0h2m2 0h2m1 0h1m-32 1h1m3 0h1m5 0h1m2 0h1m1 0h1m1 0h5m1 0h1m2 0h2m2 0h1m1 0h1m-33 1h1m1 0h1m1 0h3m1 0h1m1 0h2m2 0h4m3 0h2m5 0h4m-32 1h1m1 0h1m4 0h4m2 0h4m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h1m1 0h3m2 0h3m1 0h1m5 0h7m2 0h1m-25 1h3m2 0h1m3 0h4m2 0h2m3 0h1m1 0h3m-33 1h7m3 0h2m2 0h4m2 0h1m1 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h2m3 0h2m1 0h1m2 0h3m1 0h2m3 0h3m-31 1h1m1 0h3m1 0h1m1 0h3m1 0h1m4 0h1m2 0h1m1 0h1m1 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m1 0h4m2 0h5m2 0h3m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m3 0h1m3 0h2m1 0h2m-31 1h1m5 0h1m6 0h2m1 0h1m4 0h1m3 0h1m2 0h3m-31 1h7m1 0h1m1 0h1m2 0h2m2 0h1m1 0h1m2 0h3m1 0h2m1 0h3"/></svg>
