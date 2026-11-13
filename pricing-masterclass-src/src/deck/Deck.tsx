@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Expand, MonitorUp, Minimize, RotateCcw } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Expand, MonitorUp, Minimize, RotateCcw, Volume2, VolumeX } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { isMuted, onSoundChange, setMuted } from '../lib/chalk'
 import type { LectureModule } from './types'
 
 const key = (id: string) => `deck:${id}:index`
@@ -29,6 +30,8 @@ export default function Deck({ module }: { module: LectureModule }) {
   const [resetN, setResetN] = useState(0)
   const [full, setFull] = useState(false)
   const bc = useRef<BroadcastChannel | null>(null)
+  const [mute, setMute] = useState(isMuted())
+  useEffect(() => onSoundChange(() => setMute(isMuted())), [])
 
   const go = useCallback((d: 1 | -1) => {
     setDir(d); setResetN(0)
@@ -72,6 +75,7 @@ export default function Deck({ module }: { module: LectureModule }) {
       if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(1) }
       else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1) }
       else if (e.key === 'f' || e.key === 'F') { e.preventDefault(); toggleFull() }
+      else if (e.key === 'm' || e.key === 'M') { e.preventDefault(); setMuted(!isMuted()) }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -115,6 +119,9 @@ export default function Deck({ module }: { module: LectureModule }) {
         )}
         <button onClick={openPresenter} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Open the instructor's Presenter view in a second window">
           <MonitorUp size={16} /> Presenter view
+        </button>
+        <button onClick={() => setMuted(!mute)} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Chalk sound on/off (M)" aria-pressed={mute}>
+          {mute ? <VolumeX size={16} /> : <Volume2 size={16} />} {mute ? 'Sound off (M)' : 'Sound on (M)'}
         </button>
         <button onClick={toggleFull} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-paper-dim hover:text-gold" title="Full screen (F)">
           {full ? <Minimize size={16} /> : <Expand size={16} />} {full ? 'Exit full screen' : 'Full screen (F)'}

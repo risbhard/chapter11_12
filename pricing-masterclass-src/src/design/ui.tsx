@@ -1,5 +1,6 @@
 import { animate, motion, useMotionValue } from 'framer-motion'
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { playChalk } from '../lib/chalk'
 import { isNum, type Num } from '../lib/finance'
 
 /* ───────────── provenance tags ───────────── */
@@ -51,6 +52,12 @@ export const Hand = ({ children, className = '' }: { children: ReactNode; classN
 
 /* ───────────── hand-drawn sketch marks (decorative, purposeful emphasis) ───────────── */
 export function Scribble({ className = '', color = '#e6b655', delay = 0.4 }: { className?: string; color?: string; delay?: number }) {
+  // chalk screech while the underline is drawn (muted via the speaker button / M key)
+  useEffect(() => {
+    let stop: () => void = () => undefined
+    const t = window.setTimeout(() => { stop = playChalk(0.9) }, delay * 1000)
+    return () => { window.clearTimeout(t); stop() }
+  }, [delay])
   return (
     <svg viewBox="0 0 300 14" className={className} aria-hidden preserveAspectRatio="none" filter="url(#chalk)">
       <motion.path
@@ -203,9 +210,9 @@ export function Stat({
 }
 
 /** Prediction → reveal helper used by scenarios and interpretation questions */
-export function Question({ children }: { children: ReactNode }) {
+export function Question({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className="rounded-2xl border-2 border-gold/60 bg-gold/[0.07] p-5">
+    <div className={`rounded-2xl border-2 border-gold/60 bg-gold/[0.07] p-5 ${className}`}>
       <p className="font-mono text-[0.72rem] uppercase tracking-[0.2em] text-gold">Interpret</p>
       <p className="mt-1 font-display text-[1.55rem] leading-snug text-paper">{children}</p>
     </div>

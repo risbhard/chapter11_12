@@ -92,7 +92,9 @@ function Wall({ subs, reveal }: { subs: Submission[]; reveal: boolean }) {
 
 export default function ChallengeLanding() {
   const [room, setRoom] = useState(initialRoom)
-  const [view, setView] = useState<'brief' | 'wall'>('brief')
+  const from = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('from')
+  const fromL2 = from === 'lecture-2'
+  const [view, setView] = useState<'brief' | 'wall'>(fromL2 ? 'wall' : 'brief')
   const [reveal, setReveal] = useState(false)
   const [qr, setQr] = useState('')
   const { subs, status, clear } = useSubmissions(room)
@@ -176,8 +178,9 @@ export default function ChallengeLanding() {
           </div>
         )}
 
-        <div className="mt-10">
-          <a href="#/lecture-1"><Btn><ChevronLeft size={18} /> Back to the lecture</Btn></a>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <a href={fromL2 ? '#/lecture-2' : '#/lecture-1'}><Btn><ChevronLeft size={18} /> Back to the lecture</Btn></a>
+          {!fromL2 && <a href="#/lecture-2"><Btn variant="ghost">On to Lecture 2: the psychology of price</Btn></a>}
         </div>
       </div>
     </div>

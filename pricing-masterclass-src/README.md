@@ -1,4 +1,4 @@
-# Pricing Masterclass — Lecture 1 (source)
+# Pricing Masterclass: Lectures 1 and 2 (source)
 
     npm install
     npm run dev      # serves ../config.js at /config.js in dev, like GitHub Pages does
@@ -9,4 +9,6 @@
 - Challenge page: QR code for student submissions + results wall (Ably via the repo's existing config.js; falls back to same-browser mode).
 - Answer key: keep `answer-key*.json` local (gitignored). Load it in Presenter view.
 - Brolan photo: `public/assets/clearx-hero.jpg`; video IDs/links: `src/config/assets.ts`.
-- Add Lecture 2 by creating `src/modules/lecture2/` and registering it in `src/modules/index.ts`.
+- Lecture 2 (`src/modules/lecture2/`, route `#/lecture-2`): 15 interactive slides on the psychology of price. The "customer crowd" is a fictional 100-prospect willingness-to-pay model in `src/lib/crowd.ts` (tests in `crowd.test.ts`). Nothing there reveals the Lecture 1 challenge answers.
+- Chalk sound: synthesised with Web Audio in `src/lib/chalk.ts`, triggered by `<Scribble/>`; M toggles it.
+- Add another lecture by creating `src/modules/lectureN/` and registering it in `src/modules/index.ts`.
