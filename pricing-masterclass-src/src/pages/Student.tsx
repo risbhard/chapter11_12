@@ -67,7 +67,7 @@ export default function Student({ room }: { room: string }) {
           className="mt-6 w-full rounded-xl bg-gold py-4 text-xl font-bold text-ink-950 disabled:opacity-40">{sent ? 'Sent. Tap to resend' : 'Send to the screen'}</button>
         {!valid && <p className="mt-2 text-sm text-paper-mute">Enter a team name and a recommended price to send.</p>}
         {sent && <p className="mt-3 text-lg text-teal">Your team is on the screen. Resubmit any time to update it.</p>}
-        <p className="mt-6 font-mono text-xs text-paper-mute">{status.s === 'live' ? 'Connected' : status.s === 'connecting' ? 'Connecting…' : 'Not connected to the class screen'}</p>
+        <p className="mt-6 font-mono text-xs text-paper-mute">{status.s === 'live' ? 'Connected' : status.s === 'connecting' ? 'Connecting…' : `Not connected to the class screen${status.why ? `: ${status.why}` : ''}`}</p>
       </div>
     </div>
   )

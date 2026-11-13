@@ -156,6 +156,7 @@ export default function ChallengeLanding() {
                 ● {statusTxt} · {subs.length} team{subs.length === 1 ? '' : 's'} submitted
               </p>
               {local && <p className="mt-2 rounded-lg border border-copper/60 bg-copper/10 p-2 text-sm text-copper">Phones cannot reach a localhost address. Open this site from your GitHub Pages link so the QR code works.</p>}
+              {status.s === 'error' && status.why && <p className="mt-2 rounded-lg border border-copper/60 bg-copper/10 p-2 font-mono text-sm text-copper">{status.why}</p>}
               {status.s === 'local' && !local && <p className="mt-2 text-sm text-copper">{status.why}. Submissions only appear in this browser.</p>}
               <Btn className="mt-4" onClick={fresh}><RefreshCw size={16} /> New room</Btn>
             </div>

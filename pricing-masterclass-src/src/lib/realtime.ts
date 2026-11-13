@@ -92,9 +92,19 @@ export function openRoom(code: string, onSub: (s: Submission) => void, onStatus:
       client = new Ably.Realtime({ key, clientId: `p${Math.random().toString(36).slice(2, 9)}`, echoMessages: false })
       client.connection.on((c: any) => {
         if (c.current === 'connected') onStatus('live')
-        else if (c.current === 'failed' || c.current === 'suspended') onStatus('error', c.reason?.message)
+        else if (c.current === 'failed' || c.current === 'suspended' || c.current === 'disconnected') {
+          const r = c.reason
+          onStatus('error', r ? `${r.message}${r.code ? ` (code ${r.code})` : ''}` : `connection ${c.current}`)
+          console.error('[pricing] Ably connection', c.current, r)
+        }
       })
-      ch = client.channels.get(name, { params: { rewind: '2m' } })
+      ch = client.channels.get(name)
+      ch.on((c: any) => {
+        if (c.current === 'failed') {
+          onStatus('error', `${c.reason?.message ?? 'channel failed'}${c.reason?.code ? ` (code ${c.reason.code})` : ''}`)
+          console.error('[pricing] Ably channel', name, c.reason)
+        }
+      })
       ch.subscribe('sub', (m: any) => emit(m.data))
       queue.splice(0).forEach((s) => ch.publish('sub', s))
     } catch (e) {
