@@ -1,8 +1,6 @@
 import { motion } from 'framer-motion'
 import { ProductImage } from '../../../design/Hero'
-import { Tally } from '../../../design/extra'
-import { Btn, Eyebrow, H1, H2, Lead, Question, Scribble, Tag } from '../../../design/ui'
-import { usd } from '../../../lib/format'
+import { Eyebrow, H1, H2, Lead, Scribble, Tag } from '../../../design/ui'
 import type { Step } from '../../../deck/types'
 
 const SEC = '01 · The hook'
@@ -31,7 +29,7 @@ function Title() {
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8, duration: 1 }}>
           <Lead className="mt-8 max-w-2xl">
-            Lecture 1 showed what a price must cover. Lecture 2 asks a harder question: will customers believe it is worth paying?
+            Lecture 1 showed what a price must cover. Lecture 2 asks a different question: will customers believe it is worth paying?
           </Lead>
         </motion.div>
       </div>
@@ -41,27 +39,23 @@ function Title() {
 
 function Bridge() {
   return (
-    <div className="mx-auto grid min-h-full max-w-7xl items-center gap-10 px-6 py-4 lg:grid-cols-[1.1fr_1fr]">
-      <div>
-        <Eyebrow>Same case · new lens</Eyebrow>
-        <H2 className="mt-2">A price is a number <span className="text-gold">and</span> a message.</H2>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {[
-            ['Product', 'Automated sneaker care at home', 'concept' as const],
-            ['Kickstarter early-bird', `${usd(549)}`, 'verified' as const],
-            ['Advertised retail reference', `${usd(899)}`, 'verified' as const],
-          ].map(([a, b, t]) => (
-            <div key={a as string} className="rounded-2xl border border-paper/15 bg-ink-800/70 p-4">
-              <p className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-paper-mute">{a as string}</p>
-              <p className="mt-1 font-display text-[1.6rem] leading-tight text-paper">{b as string}</p>
-              <Tag kind={t as 'concept' | 'verified'} className="mt-3 !text-[0.6rem]" />
-            </div>
-          ))}
-        </div>
-        <Question className="mt-6">Would customers see <em>your</em> calculated price as worth paying?</Question>
-        <a href="#/challenge?from=lecture-2" className="mt-5 inline-block"><Btn>Look back at the Lecture 1 results wall</Btn></a>
+    <div className="mx-auto flex min-h-full max-w-5xl flex-col justify-center px-6 py-4">
+      <Eyebrow>Same case · new lens</Eyebrow>
+      <H2 className="mt-2">A price is a number <span className="text-gold">and a message.</span></H2>
+      <Lead className="mt-4 max-w-3xl">The numbers tell us whether a price works for the business. Customers decide whether it works for them.</Lead>
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+        {[
+          ['Product', 'Automated sneaker care at home', 'concept' as const],
+          ['Kickstarter early-bird', '$549', 'verified' as const],
+          ['Advertised retail reference', '$899', 'verified' as const],
+        ].map(([a, b, t]) => (
+          <div key={a as string} className="rounded-2xl border border-paper/15 bg-ink-800/70 p-5">
+            <p className="font-mono text-[0.72rem] uppercase tracking-[0.16em] text-paper-mute">{a as string}</p>
+            <p className="mt-2 font-display text-[1.8rem] leading-tight text-paper">{b as string}</p>
+            <Tag kind={t as 'concept' | 'verified'} className="mt-4 !text-[0.6rem]" />
+          </div>
+        ))}
       </div>
-      <Tally title="Your team's price from Lecture 1: would customers see it as worth paying?" options={['Yes, clearly', 'Only for some customers', 'Not sure', 'No']} />
     </div>
   )
 }
@@ -70,17 +64,15 @@ export const hookSteps: Step[] = [
   {
     id: 'l2-title', section: SEC, title: 'The psychology and strategy behind the price', cinematic: true, render: () => <Title />,
     notes: [
-      'Lecture 1 = the numbers (viability). Lecture 2 = perception and strategy (credibility). Ask students to keep the price they recommended in Lecture 1 in mind all session.',
-      'Sound: the chalk screech plays as the underline is drawn. M mutes it.',
+      'Lecture 1 was the numbers (can the business afford this price?). Lecture 2 is the customer side (will they see it as worth paying?).',
+      'Keep this lecture short: the aim is to give teams time to work on their simulation.',
     ],
   },
   {
-    id: 'l2-bridge', section: SEC, title: 'Same case, new lens', render: () => <Bridge />, resettable: true,
+    id: 'l2-bridge', section: SEC, title: 'A price is a number and a message', render: () => <Bridge />,
     notes: [
-      '$549 early-bird and $899 retail reference are advertised figures. Production cost and fixed cost are classroom assumptions from Lecture 1; no new costs are introduced today.',
-      'Take a show of hands for the vote: click an option once per hand (right-click removes one). Nothing is stored.',
-      'The results wall button shows what teams recommended in Lecture 1 (if the room is still open in this browser). "Back to the lecture" returns here.',
-      'Prompt: what would a customer need to believe for your price to feel fair?',
+      '$549 (Kickstarter early-bird) and $899 (advertised retail reference) are the two prices on the public pages. Treat $899 as a proposed retail reference, not a verified past selling price.',
+      'One idea to land: the same number can feel fair to one customer and expensive to another. The next slides are the reasons why.',
     ],
   },
 ]
