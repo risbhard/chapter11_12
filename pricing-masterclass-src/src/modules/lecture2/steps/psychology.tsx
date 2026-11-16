@@ -171,7 +171,7 @@ function Lining() {
   const [sel, setSel] = useState(1)
   return (
     <div className="mx-auto flex min-h-full max-w-6xl flex-col justify-center px-6 py-4">
-      <Eyebrow>Price lining · bundling · customary prices</Eyebrow>
+      <Eyebrow>Price lining and customary prices</Eyebrow>
       <H2 className="mt-2">Good, better, best: <span className="text-gold">let customers pick a lane.</span></H2>
       <div className="mt-8 grid gap-4 md:grid-cols-3">
         {TIERS.map((t, k) => (
@@ -187,8 +187,44 @@ function Lining() {
         ))}
       </div>
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <Card tag="Price lining and bundling" body="A few clear options make choosing easy, and bundles let customers feel they are getting more. Many people gravitate to the middle option." color="#47c2b5" />
+        <Card tag="Price lining" body="A few clear options make choosing easy, and each option speaks to a different customer. Many people gravitate to the middle one." color="#47c2b5" />
         <Card tag="Customary prices" body="Customers carry an expected price range for a product category. Far below it looks suspicious; far above it looks unreasonable." color="#e6b655" />
+      </div>
+    </div>
+  )
+}
+
+
+/* ───────── bundling ───────── */
+const PARTS = ['The machine', 'Care-supplies kit', 'Accessories']
+
+function Bundling() {
+  const [mode, setMode] = useState<'sep' | 'bundle'>('bundle')
+  return (
+    <div className="mx-auto grid min-h-full max-w-7xl items-center gap-10 px-6 py-4 lg:grid-cols-2">
+      <div>
+        <Eyebrow>Bundling</Eyebrow>
+        <H2 className="mt-2">Sell it as a package, <span className="text-gold">not as parts.</span></H2>
+        <Lead className="mt-4">Bundling groups products together at one price, so the customer makes one decision instead of three.</Lead>
+        <div className="mt-6"><Seg value={mode} onChange={setMode} label="How it is sold" options={[{ id: 'sep', label: 'Sold separately' }, { id: 'bundle', label: 'As a bundle' }]} /></div>
+        <div className="board mt-5 p-5">
+          {mode === 'sep' ? (
+            <motion.div key="sep" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid gap-3 sm:grid-cols-3">
+              {PARTS.map((t) => <div key={t} className="rounded-xl border border-paper/25 p-4 text-center text-[1.1rem] text-paper">{t}<p className="mt-1 text-sm text-paper-mute">choose · price · decide</p></div>)}
+            </motion.div>
+          ) : (
+            <motion.div key="bundle" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} className="rounded-xl border-2 border-gold p-5 text-center">
+              <p className="font-display text-[1.9rem] text-paper">ClearX Complete</p>
+              <p className="mt-1 text-[1.1rem] text-paper-dim">{PARTS.join(' + ')}</p>
+              <p className="mt-2 text-sm text-gold">one choice · one price</p>
+            </motion.div>
+          )}
+        </div>
+      </div>
+      <div className="space-y-4">
+        <Card tag="Why firms bundle" body="Choosing is simpler, the package feels like more value, and each customer buys more." color="#47c2b5" />
+        <Card tag="For example" body="A combo meal, or a phone sold with a case and charger. For ClearX: the machine with a supplies kit and accessories." color="#e6b655" />
+        <Card tag="Watch out" body="Forced extras can annoy customers who only wanted the machine, and the contents of the bundle must be described clearly." color="#8f897d" />
       </div>
     </div>
   )
@@ -224,10 +260,17 @@ export const psychologySteps: Step[] = [
     ],
   },
   {
-    id: 'l2-lining', section: SEC, title: 'Price lining, bundling and customary prices', render: () => <Lining />, resettable: true,
+    id: 'l2-lining', section: SEC, title: 'Price lining and customary prices', render: () => <Lining />, resettable: true,
     notes: [
-      'Price lining offers a few tiers. Bundling packages extras with the machine: here Plus adds a supplies kit and Complete adds accessories.',
-      'Customary pricing: buyers expect a typical range for a category. These tiers are illustrative, not a Brolan offer.',
+      'Price lining offers a small set of clearly different tiers (good / better / best) so each type of customer finds a lane.',
+      'Customary pricing: buyers expect a typical range for a category; far outside it raises doubt. These tiers are illustrative, not a Brolan offer.',
+    ],
+  },
+  {
+    id: 'l2-bundling', section: SEC, title: 'Bundling', render: () => <Bundling />, resettable: true,
+    notes: [
+      'Bundling sells several items together at one price. Toggle between separate parts (three decisions) and one package (one decision).',
+      'Pure bundling means the parts are only sold together; mixed bundling means they are also sold alone. Mention it if asked. Either way, describe what is in the bundle clearly (links to the next slides on honest claims).',
     ],
   },
 ]
