@@ -238,7 +238,7 @@ function Playbook() {
       <div>
         <Eyebrow>LO 9-3 · Strategies and tactics · app playbook</Eyebrow>
         <H2 className="mt-2">Once the app exists, <span className="text-signal">promote it, polish it, protect it.</span></H2>
-        <p className="mt-2 text-lg text-paper-dim">Tap a card to open it. Which two would you fund first for a brand-new app with a small budget?</p>
+        <p className="mt-2 text-lg text-paper-dim">Tap a card to open it.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{CARDS.map((c) => <FlipCard key={c.f} front={c.f} icon={c.i} back={c.b} />)}</div>
       <Tag kind="verified" />
@@ -277,6 +277,6 @@ export const appSteps: Step[] = [
   },
   {
     id: 'c9-playbook', section: SEC, title: 'App promotion and features playbook', render: () => <Playbook />, resettable: true,
-    notes: ['Let students open cards in any order. The closing question forces trade-offs: a small budget funds ASO and organic first, paid and retargeting once the listing converts.'],
+    notes: ['Let students open cards in any order. Ask: which two would you fund first for a brand-new app with a small budget? It forces trade-offs: a small budget funds ASO and organic first, paid and retargeting once the listing converts.'],
   },
 ]

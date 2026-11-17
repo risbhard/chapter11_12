@@ -51,7 +51,6 @@ function Evolution() {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="glass p-4"><p className="font-mono text-[0.72rem] uppercase tracking-[0.18em] text-paper-mute">Texts sent each month</p><p className="mt-1 font-display text-[2.6rem] font-semibold leading-none text-signal"><AnimatedNumber value={500} format={(n) => `${Math.round(n ?? 0)}B+`} /></p><Tag kind="verified" className="mt-3 !text-[0.6rem]" /></div>
         <div className="glass p-4"><p className="font-mono text-[0.72rem] uppercase tracking-[0.18em] text-paper-mute">Online transactions on mobile</p><p className="mt-1 font-display text-[2.6rem] font-semibold leading-none text-ping"><AnimatedNumber value={40} format={(n) => `${Math.round(n ?? 0)}%`} /></p><Tag kind="verified" className="mt-3 !text-[0.6rem]" /></div>
-        <Question className="!p-4">Pick one milestone. How did it change the way a business could reach customers?</Question>
       </div>
     </Shell>
   )
@@ -151,7 +150,6 @@ function Objectives() {
       </AnimatePresence>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="glass p-4"><p className="font-mono text-[0.72rem] uppercase tracking-[0.18em] text-paper-mute">Example</p><p className="mt-1 text-[1.2rem] text-paper">{o.ex}</p><p className="mt-3 font-mono text-sm text-signal">Measure: {o.kpi}</p></div>
-        <Question className="!p-4">Find the number and the deadline in the mobile objective. Why do they matter?</Question>
       </div>
       <Tag kind="verified" />
     </Shell>
@@ -163,6 +161,7 @@ export const whySteps: Step[] = [
     id: 'c9-evolution', section: SEC, title: 'Evolution and value of mobile', render: () => <Evolution />, resettable: true,
     notes: [
       'Click through the six milestones. The dates and the 500B texts / 40% of online transactions are the textbook figures (Sachdev, Digital Marketing, 2026 release, Ch. 9); say so if students ask for the source.',
+      'Ask the class: pick one milestone. How did it change the way a business could reach customers?',
       'Question to land: the 2008 app stores created a marketing problem (discovery), not just a technology. That sets up the app-store slides later.',
     ],
   },
@@ -178,6 +177,7 @@ export const whySteps: Step[] = [
     id: 'c9-objectives', section: '02 · Objectives', title: 'Start with the objective', render: () => <Objectives />, resettable: true,
     notes: [
       'This mirrors Exhibit 9-1 in the textbook: organization objective → mobile objective → value for the customer. The percentages are the textbook’s example targets.',
+      'Ask the class: find the number and the deadline in the mobile objective. Why do they matter?',
       'Ask which objective an app icon serves (awareness) and which one a “your order is ready” text serves (service).',
     ],
   },

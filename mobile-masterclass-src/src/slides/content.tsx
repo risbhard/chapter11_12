@@ -45,7 +45,7 @@ function ContentWorks() {
           {fmt === 'short' && (
             <div className="space-y-3 px-3 pt-2">
               <p className="text-center font-mono text-xs text-paper-mute">Text message · Harbour Market</p>
-              <Bubble>Harbour Market: your pickup order is ready. Show this text at the curb.</Bubble>
+              <Bubble>Harbour Market: your order\'s ready! 🛒 Show this text at the curb.</Bubble>
               <Bubble>Order #4821 · 12 items</Bubble>
               <div className="px-1 pt-2"><p className="font-mono text-xs text-paper-mute">Checkout · step 2 of 3</p><div className="mt-1 h-2 rounded-full bg-ink-600"><div className="h-full w-2/3 rounded-full bg-signal" /></div></div>
             </div>
@@ -131,10 +131,10 @@ function Act2() {
 /* ───────── texting, wearables, streaming ───────── */
 type Ch = 'text' | 'wear' | 'stream'
 const TEXT_TYPES = [
-  ['Sales and coupons', 'Offers are a popular reason to opt in.', 'Kelowna Community Music School: 20% off a first lesson this week. Book: kcms.example/20. Reply STOP to opt out.'],
-  ['Confirmations', 'Show a booking or purchase worked.', 'Kelowna Community Music School: you are booked for Sat 10:00. Details: kcms.example/b4821'],
-  ['Service and updates', 'Answer questions and announce changes.', 'Kelowna Community Music School: class moved to Room 2. Reply HELP for questions.'],
-  ['Surveys', 'Ask a short question and learn.', 'Kelowna Community Music School: how was your lesson? Reply 1 to 5. Reply STOP to opt out.'],
+  ['Sales and coupons', 'Offers are a popular reason to opt in.', 'Kelowna Community Music School: first lesson 20% off this week 🎸 Book: kcms.example/20. Reply STOP to opt out.'],
+  ['Confirmations', 'Show a booking or purchase worked.', 'Kelowna Community Music School: you\'re booked for Sat 10:00 🎶 Details: kcms.example/b4821'],
+  ['Service and updates', 'Answer questions and announce changes.', 'Kelowna Community Music School: heads up, class moved to Room 2 🚪 Reply HELP with questions.'],
+  ['Surveys', 'Ask a short question and learn.', 'Kelowna Community Music School: how was your lesson? 🎵 Reply 1-5. Reply STOP to opt out.'],
 ] as const
 function Beyond() {
   const [ch, setCh] = useState<Ch>('text')
@@ -168,7 +168,7 @@ function Beyond() {
           ))}
         </motion.div>
       )}
-      <div className="flex flex-wrap items-center gap-3"><Tag kind="verified" /><span className="text-[1.05rem] text-paper-dim"><span className="font-semibold text-signal">Discuss:</span> which of these four texts would you send first to a new customer? Why?</span></div>
+      <div className="flex flex-wrap items-center gap-3"><Tag kind="verified" /></div>
     </Shell>
   )
 }
@@ -193,6 +193,6 @@ export const contentSteps: Step[] = [
   },
   {
     id: 'c9-beyond', section: SEC, title: 'Texting, wearables and streaming', render: () => <Beyond />, resettable: true,
-    notes: ['Text campaigns suit small businesses without app budgets. Wearables and streaming extend mobile beyond the phone. If you want detail: smart rings such as Oura track blood oxygen, heart rate, temperature and movement; Amazon Ads offers streaming TV ads using first-party behaviour and contextual audiences; Spotify promotes audio ads as a “no-swipe, no-scroll” environment. These examples come from the textbook.'],
+    notes: ['Ask the class: which of the four text types would you send first to a new customer, and why? Text campaigns suit small businesses without app budgets. Wearables and streaming extend mobile beyond the phone. If you want detail: smart rings such as Oura track blood oxygen, heart rate, temperature and movement; Amazon Ads offers streaming TV ads using first-party behaviour and contextual audiences; Spotify promotes audio ads as a “no-swipe, no-scroll” environment. These examples come from the textbook.'],
   },
 ]

@@ -80,7 +80,7 @@ function Geofence() {
           <div className="space-y-3 px-3 pt-3">
             <p className="text-center font-display text-4xl font-semibold text-paper">1:47</p>
             <AnimatePresence mode="wait">
-              {state === 'send' && <motion.div key="s" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><Notif className="buzz" app="Café" title="2-for-1 lattes, 120 m away" body="Until 3:30 pm. Reply STOP to opt out." /></motion.div>}
+              {state === 'send' && <motion.div key="s" initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}><Notif className="buzz" app="Café" title="Latte o'clock ☕ 2-for-1, 120 m away" body="Till 3:30. Reply STOP to opt out." /></motion.div>}
               {state === 'out' && <motion.p key="o" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-10 text-center font-mono text-sm text-paper-mute">No notifications</motion.p>}
               {state === 'block' && <motion.div key="b" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="rounded-2xl border-2 border-pulse p-3 text-center"><p className="font-semibold text-pulse">Message blocked</p><p className="mt-1 text-sm text-paper-dim">Inside the fence, but no consent. Do not send.</p></motion.div>}
             </AnimatePresence>
@@ -142,13 +142,12 @@ function BurgerKing() {
             <p className="text-center font-display text-4xl font-semibold text-paper">12:20</p>
             {passed ? (
               <motion.div initial={{ opacity: 0, y: -18 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                <Notif className="buzz" app="Burger app" title="A Whopper for 1¢, right now" body="Order in the app and we will route you to the nearest restaurant." />
+                <Notif className="buzz" app="Burger app" title="A Whopper for 1¢. Yes, really 🍔" body="Order in the app and we'll point you to the nearest restaurant." />
                 <div className="rounded-xl bg-ink-700 p-3 text-sm text-paper-dim"><span className="font-semibold text-signal">Directions</span> · nearest restaurant 0.8 km</div>
               </motion.div>
             ) : <p className="pt-10 text-center font-mono text-sm text-paper-mute">No notifications</p>}
           </div>
         </Phone>
-        <Question className="max-w-xs !p-4">Smart, or too far? Name one rule the brand must still follow.</Question>
       </div>
     </Shell>
   )
@@ -187,12 +186,12 @@ function Scenario({ p, letter, verdict, points, phone }: { p: Prompt; letter: st
 const stepsA = () => (
   <Scenario p={PA} letter="A" verdict="Smart, if the guardrails hold."
     points={['The customer opted in.', 'The timing and place make the offer useful.', 'Keep it occasional and easy to opt out (reply STOP).']}
-    phone={<Phone width={250}><div className="px-3 pt-4"><Notif app="Café" title="Rainy day? 2-for-1 lattes" body="Open until 6 pm in Orchard Plaza. Reply STOP to opt out." /></div></Phone>} />
+    phone={<Phone width={250}><div className="px-3 pt-4"><Notif app="Café" title="Rainy day? ☔ 2-for-1 lattes" body="Open till 6 in Orchard Plaza. Reply STOP to opt out." /></div></Phone>} />
 )
 const stepsB = () => (
   <Scenario p={PB} letter="B" verdict="Intrusive, and risky."
     points={['No clear consent.', 'It guesses at health needs, which is sensitive.', 'Precise location plus health data raises privacy and legal risk.']}
-    phone={<Phone width={250}><div className="px-3 pt-4"><Notif accent="bg-pulse" app="Clinic" title="Struggling with back pain?" body="We saw you near the physio centre. Book today." /></div></Phone>} />
+    phone={<Phone width={250}><div className="px-3 pt-4"><Notif accent="bg-pulse" app="Clinic" title="Back pain? 😬" body="We saw you near the physio centre. Book today." /></div></Phone>} />
 )
 
 /* ───────── guardrails + Canadian lens ───────── */
@@ -252,6 +251,7 @@ export const locationSteps: Step[] = [
     id: 'c9-bk', section: SEC, title: 'Burger King: the 1¢ Whopper', render: () => <BurgerKing />, resettable: true,
     notes: [
       'Textbook example: app users near a McDonald’s received a 1¢ Whopper offer and were directed to the nearest Burger King. Target, tactic, goal as on the slide.',
+      'Ask the class: smart, or too far? Name one rule the brand must still follow (consent, sender ID, easy opt-out, relevance).',
       'The map is an illustration with generic shapes; no brand artwork is used. Ask about the ethics of fencing a competitor, then move to Activity 1.',
     ],
   },

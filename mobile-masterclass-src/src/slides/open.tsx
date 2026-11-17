@@ -11,9 +11,9 @@ const SEC = '00 · Open'
 
 function Title() {
   const notifs = [
-    { app: 'Café', title: '2-for-1 lattes, 120 m away', body: 'Until 3:30 pm. Reply STOP to opt out.', accent: 'bg-signal' },
-    { app: 'Bookings', title: 'Your 4:00 appointment is confirmed', body: 'Tap to add it to your calendar.', accent: 'bg-ping' },
-    { app: 'Order ready', title: 'Your pickup is ready at the curb', body: 'Bring photo ID.', accent: 'bg-pulse' },
+    { app: 'Café', title: 'Latte o\'clock ☕ 2-for-1, 120 m away', body: 'Till 3:30. Reply STOP to opt out.', accent: 'bg-signal' },
+    { app: 'Bookings', title: 'You\'re booked! 4:00 today ✅', body: 'Tap to add it to your calendar.', accent: 'bg-ping' },
+    { app: 'Order ready', title: 'Your order\'s ready 🙌', body: 'Pull up to the curb. Bring photo ID.', accent: 'bg-pulse' },
   ]
   return (
     <div className="dots relative flex min-h-full items-center overflow-hidden bg-ink-950 px-6 md:px-14">
@@ -111,10 +111,10 @@ function Moment() {
             <div className="mt-5 w-full space-y-2">
               {t !== null && (
                 <motion.div key="n" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
-                  <Notif app="Café" title="2-for-1 lattes, 120 m away" body="Until 3:30 pm. Tap to order ahead." className={stage === 0 ? 'buzz' : ''} />
+                  <Notif app="Café" title="Latte o'clock ☕ 2-for-1, 120 m away" body="Till 3:30. Tap to order ahead." className={stage === 0 ? 'buzz' : ''} />
                 </motion.div>
               )}
-              {stage >= 1 && stage < 3 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><Bubble from="brand">Order ahead? Your usual is saved.</Bubble></motion.div>}
+              {stage >= 1 && stage < 3 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><Bubble from="brand">Want your usual? It\'s saved 😉</Bubble></motion.div>}
               {stage === 2 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><Bubble from="me">One tap: ordered ✓</Bubble></motion.div>}
               {stage === 3 && <p className="pt-2 text-center font-mono text-sm text-paper-mute">screen off</p>}
             </div>
