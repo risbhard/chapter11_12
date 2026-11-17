@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { chirp } from '../lib/sound'
 
 /** Pure-CSS phone frame. Children render inside the screen. */
 export function Phone({ children, className = '', width = 290, tone = 'dark' }: { children: ReactNode; className?: string; width?: number; tone?: 'dark' | 'light' }) {
@@ -16,6 +17,7 @@ export function Phone({ children, className = '', width = 290, tone = 'dark' }: 
 }
 
 export function Notif({ app, title, body, time = 'now', accent = 'bg-signal', className = '' }: { app: string; title: string; body: string; time?: string; accent?: string; className?: string }) {
+  useEffect(() => { chirp() }, [])
   return (
     <div className={`rounded-2xl bg-ink-700/95 p-3 text-left shadow-lg ${className}`}>
       <div className="flex items-center gap-2">
@@ -29,7 +31,8 @@ export function Notif({ app, title, body, time = 'now', accent = 'bg-signal', cl
   )
 }
 
-export function Bubble({ from = 'brand', children, className = '' }: { from?: 'brand' | 'me'; children: ReactNode; className?: string }) {
+export function Bubble({ from = 'brand', children, className = '', chime = false }: { from?: 'brand' | 'me'; children: ReactNode; className?: string; chime?: boolean }) {
+  useEffect(() => { if (chime) chirp() }, [chime])
   return (
     <div className={`flex ${from === 'me' ? 'justify-end' : 'justify-start'} ${className}`}>
       <div className={`max-w-[90%] break-words rounded-2xl px-3.5 py-2 text-[0.92rem] leading-snug [overflow-wrap:anywhere] ${from === 'me' ? 'rounded-br-md bg-ping text-ink-950' : 'rounded-bl-md bg-ink-600 text-paper'}`}>{children}</div>

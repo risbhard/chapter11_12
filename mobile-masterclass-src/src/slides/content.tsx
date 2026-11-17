@@ -45,7 +45,7 @@ function ContentWorks() {
           {fmt === 'short' && (
             <div className="space-y-3 px-3 pt-2">
               <p className="text-center font-mono text-xs text-paper-mute">Text message · Harbour Market</p>
-              <Bubble>Harbour Market: your order\'s ready! 🛒 Show this text at the curb.</Bubble>
+              <Bubble chime>Harbour Market: your pickup order is ready. Show this text at the curb.</Bubble>
               <Bubble>Order #4821 · 12 items</Bubble>
               <div className="px-1 pt-2"><p className="font-mono text-xs text-paper-mute">Checkout · step 2 of 3</p><div className="mt-1 h-2 rounded-full bg-ink-600"><div className="h-full w-2/3 rounded-full bg-signal" /></div></div>
             </div>
@@ -131,10 +131,10 @@ function Act2() {
 /* ───────── texting, wearables, streaming ───────── */
 type Ch = 'text' | 'wear' | 'stream'
 const TEXT_TYPES = [
-  ['Sales and coupons', 'Offers are a popular reason to opt in.', 'Kelowna Community Music School: first lesson 20% off this week 🎸 Book: kcms.example/20. Reply STOP to opt out.'],
-  ['Confirmations', 'Show a booking or purchase worked.', 'Kelowna Community Music School: you\'re booked for Sat 10:00 🎶 Details: kcms.example/b4821'],
-  ['Service and updates', 'Answer questions and announce changes.', 'Kelowna Community Music School: heads up, class moved to Room 2 🚪 Reply HELP with questions.'],
-  ['Surveys', 'Ask a short question and learn.', 'Kelowna Community Music School: how was your lesson? 🎵 Reply 1-5. Reply STOP to opt out.'],
+  ['Sales and coupons', 'Offers are a popular reason to opt in.', 'Kelowna Community Music School: 20% off a first lesson this week. Book: kcms.example/20. Reply STOP to opt out.'],
+  ['Confirmations', 'Show a booking or purchase worked.', 'Kelowna Community Music School: you are booked for Sat 10:00. Details: kcms.example/b4821'],
+  ['Service and updates', 'Answer questions and announce changes.', 'Kelowna Community Music School: class moved to Room 2. Reply HELP for questions.'],
+  ['Surveys', 'Ask a short question and learn.', 'Kelowna Community Music School: how was your lesson? Reply 1 to 5. Reply STOP to opt out.'],
 ] as const
 function Beyond() {
   const [ch, setCh] = useState<Ch>('text')
@@ -151,7 +151,7 @@ function Beyond() {
           <div className="grid content-start gap-3 sm:grid-cols-2">{TEXT_TYPES.map(([a, b], i) => (
             <button key={a} onClick={() => setK(i)} aria-pressed={k === i} className={`glass p-4 text-left transition-colors ${k === i ? '!border-signal' : 'hover:border-paper/40'}`}><p className="font-display text-[1.25rem] font-semibold text-paper">{a}</p><p className="mt-1 text-[1.02rem] text-paper-dim">{b}</p></button>
           ))}</div>
-          <div className="flex justify-center"><Phone width={235}><div className="px-2 pt-3"><Bubble>{TEXT_TYPES[k][2]}</Bubble></div></Phone></div>
+          <div className="flex justify-center"><Phone width={235}><div className="px-2 pt-3"><Bubble key={k} chime>{TEXT_TYPES[k][2]}</Bubble></div></Phone></div>
         </div>
       )}
       {ch === 'wear' && (

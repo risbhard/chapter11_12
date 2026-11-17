@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Expand, Minimize, MonitorUp, RotateCcw, Smartphone } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Expand, Minimize, MonitorUp, RotateCcw, Smartphone, Volume2, VolumeX } from 'lucide-react'
+import { chirp, setSound, soundOn } from '../lib/sound'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { JoinPanel } from '../design/live-ui'
 import { useLive } from '../lib/LiveProvider'
@@ -28,6 +29,7 @@ export default function Deck({ module }: { module: LectureModule }) {
   const last = module.steps.length - 1
   const [i, setI] = useState(() => read(module.id, last))
   const [dir, setDir] = useState(1)
+  const [snd, setSnd] = useState(soundOn)
   const [resetN, setResetN] = useState(0)
   const [full, setFull] = useState(false)
   const [showJoin, setShowJoin] = useState(false)
@@ -127,6 +129,9 @@ export default function Deck({ module }: { module: LectureModule }) {
         )}
         <button onClick={() => setShowJoin(true)} className={btn} title="Show the phone join code and QR (P)">
           <Smartphone size={16} /> Phones · <span className="font-mono tracking-widest">{live.code}</span>
+        </button>
+        <button onClick={() => { const n = !snd; setSound(n); setSnd(n); if (n) chirp() }} className={btn} title="Turn the message chirp on or off" aria-pressed={snd}>
+          {snd ? <Volume2 size={16} /> : <VolumeX size={16} />} Sound {snd ? 'on' : 'off'}
         </button>
         <button onClick={openPresenter} className={btn} title="Open the instructor's Presenter view in a second window">
           <MonitorUp size={16} /> Presenter view
