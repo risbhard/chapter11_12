@@ -86,7 +86,7 @@ function Contribution() {
       <div>
         <Eyebrow>Contribution margin</Eyebrow>
         <H2 className="mt-2">What each sale contributes.</H2>
-        <FormulaCard className="mt-5" title="Contribution margin per unit" formula="Selling Price − Variable Cost per Unit" accent="text-teal" />
+        <FormulaCard className="mt-5" title="Contribution margin per unit" formula="Selling Price per Unit − Variable Cost per Unit" accent="text-teal" />
         <div className="mt-4">
           <ControlRow label="Selling price per unit" value={price} onChange={setPrice} min={5} max={120} prefix="$" accent={COLORS.revenue} />
           <ControlRow label="Variable cost per unit" value={vc} onChange={setVc} min={0} max={120} prefix="$" accent={COLORS.variable} />

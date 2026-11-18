@@ -56,19 +56,11 @@ function MarkupMargin() {
   const [pick, setPick] = useState<string | null>(null)
   const mu = markupPct(price, cost), mg = marginPct(price, cost)
   const ok = isNum(cost) && isNum(price) && cost > 0 && price > 0
-  const max = ok ? Math.max(cost!, price!) : 1
-  const costW = ok ? (Math.min(cost!, price!) / max) * 100 : 0
-  const profW = ok ? (Math.abs(price! - cost!) / max) * 100 : 0
+  const lo = ok ? Math.min(cost!, price!) : 0
+  const costW = ok ? (lo / Math.max(cost!, price!)) * 100 : 0
+  const profW = ok ? (Math.abs(price! - cost!) / Math.max(cost!, price!)) * 100 : 0
   const neg = ok && price! < cost!
-  const Bar = ({ denom }: { denom: 'cost' | 'price' }) => (
-    <div className="relative h-14 w-full rounded-lg bg-ink-950/60">
-      <div className="absolute inset-y-0 left-0 flex">
-        <motion.div animate={{ width: `${costW}%` }} className="h-14 rounded-l-lg bg-gold" style={{ width: `${costW}%` }} />
-        <motion.div animate={{ width: `${profW}%` }} className={`h-14 rounded-r-lg ${neg ? 'bg-copper' : 'bg-teal'}`} style={{ width: `${profW}%` }} />
-      </div>
-      <motion.div className="absolute inset-y-[-6px] rounded-md border-[3px] border-dashed border-paper" animate={{ width: `${denom === 'cost' ? (Math.max(costW, 1)) : (costW + profW)}%` }} style={{ left: 0 }} aria-hidden />
-    </div>
-  )
+  const gain = ok ? price! - cost! : 0
   const checks = [
     ['markup', 'Markup is higher than margin'], ['margin', 'Margin is higher than markup'], ['same', 'They are the same'],
   ]
@@ -93,9 +85,15 @@ function MarkupMargin() {
             <p className="mt-1 font-display text-[3.2rem] font-light text-teal leading-none"><AnimatedNumber value={mg} format={(n) => pct(n, 1)} /></p></div>
         </div>
         <div className="board mt-4 p-5">
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-paper-mute">Cost <span className="text-gold">■</span> + profit <span className={neg ? 'text-copper' : 'text-teal'}>■</span>. The dashed box is the denominator.</p>
-          <p className="mt-3 text-sm text-paper-dim">Markup divides profit by <b className="text-gold">cost</b></p><div className="mt-1"><Bar denom="cost" /></div>
-          <p className="mt-4 text-sm text-paper-dim">Margin divides profit by <b className="text-teal">price</b></p><div className="mt-1"><Bar denom="price" /></div>
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-paper-mute">The same ${ok ? Math.abs(gain) : '–'} of {neg ? 'loss' : 'profit'}, divided two ways</p>
+          <div className="mt-3 flex h-14 w-full overflow-hidden rounded-lg" role="img" aria-label="Cost and profit shown as one bar">
+            <motion.div animate={{ width: `${costW}%` }} transition={{ duration: 0.4 }} className="flex items-center justify-center overflow-hidden bg-gold text-sm font-bold text-ink-950">{costW >= 14 ? `Cost ${usd(Math.min(cost as number, price as number))}` : ''}</motion.div>
+            <motion.div animate={{ width: `${profW}%` }} transition={{ duration: 0.4 }} className={`flex items-center justify-center overflow-hidden text-sm font-bold text-ink-950 ${neg ? 'bg-copper' : 'bg-teal'}`}>{profW >= 14 ? `${neg ? 'Loss' : 'Profit'} ${usd(Math.abs(gain))}` : ''}</motion.div>
+          </div>
+          <div className="mt-4 grid gap-2 font-mono text-lg tnum">
+            <p><span className="text-gold">Markup</span> <span className="text-paper-dim">= {ok ? `${usd(gain)} ÷ ${usd(cost)} (cost)` : '–'}</span></p>
+            <p><span className="text-teal">Margin</span> <span className="text-paper-dim">= {ok ? `${usd(gain)} ÷ ${usd(price)} (price)` : '–'}</span></p>
+          </div>
         </div>
         <div className="mt-4">
           <p className="font-display text-xl text-paper">Knowledge check: when price is above cost, how do markup and margin compare?</p>

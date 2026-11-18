@@ -1,5 +1,5 @@
 import { animate, motion } from 'framer-motion'
-import { RotateCcw } from 'lucide-react'
+import { Pause, Play, RotateCcw } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import BreakEvenChart from '../../../design/BreakEvenChart'
 import { COLORS } from '../../../design/charts'
@@ -24,13 +24,17 @@ function Opener() {
 }
 
 function Build() {
+  const DUR = 7
   const [t, setT] = useState(0)
-  const [run, setRun] = useState(0)
+  const [playing, setPlaying] = useState(true)
   useEffect(() => {
-    setT(0)
-    const c = animate(0, 1, { duration: 7, ease: 'linear', delay: 0.6, onUpdate: setT })
+    if (!playing) return
+    const from = t >= 1 ? 0 : t
+    const c = animate(from, 1, { duration: DUR * (1 - from), ease: 'linear', delay: from === 0 ? 0.6 : 0, onUpdate: setT, onComplete: () => setPlaying(false) })
     return () => c.stop()
-  }, [run])
+  }, [playing]) // eslint-disable-line react-hooks/exhaustive-deps
+  const toggle = () => { if (t >= 1 && !playing) setT(0); setPlaying((p) => !p) }
+  const replay = () => { setPlaying(false); setT(0); setTimeout(() => setPlaying(true), 30) }
   const q = t * WINDOW.xMax
   const rev = revenue(PRACTICE.price, q)
   const tc = totalCost(PRACTICE.fixed, PRACTICE.vc, q)
@@ -47,7 +51,15 @@ function Build() {
           <Stat label="Total cost" tone="copper"><span className="tnum">{usd(tc)}</span></Stat>
           <Stat label={isNum(pl) && pl >= 0 ? 'Profit' : 'Loss'} tone={isNum(pl) && pl >= 0 ? 'teal' : 'copper'} big><span className="tnum">{usd(pl)}</span></Stat>
         </div>
-        <div className="mt-4 flex items-center gap-3"><Tag kind="practice" /><Btn onClick={() => setRun((n) => n + 1)}><RotateCcw size={16} /> Replay</Btn></div>
+        <div className="mt-4">
+          <input type="range" className="slider" min={0} max={1} step={0.001} value={t} aria-label="Sales volume"
+            onChange={(e) => { setPlaying(false); setT(Number(e.target.value)) }} onPointerUp={(e) => e.currentTarget.blur()} />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Tag kind="practice" />
+          <Btn variant="primary" onClick={toggle} aria-label={playing ? 'Pause animation' : 'Play animation'}>{playing ? <><Pause size={16} /> Pause</> : <><Play size={16} /> Play</>}</Btn>
+          <Btn onClick={replay}><RotateCcw size={16} /> Replay</Btn>
+        </div>
       </div>
     </div>
   )
@@ -176,7 +188,7 @@ export const breakEvenSteps: Step[] = [
   { id: 'be-open', section: SEC, title: 'The point where a business stops losing money', cinematic: true, render: () => <Opener />,
     notes: ['Pause here. Ask: when does a new business start making money?'] },
   { id: 'be-build', section: SEC, title: 'Revenue and cost lines', render: () => <Build />, resettable: true,
-    notes: ['Replay as needed. Left of the crossing the company loses money; right of it, profit.', 'Practice example only (fictional bottle company).'] },
+    notes: ['Pause stops the animation at the exact point you choose (stop at the crossing to show the break-even point); Play resumes. Drag the slider under the figures to scrub to any volume. Replay starts over.', 'Left of the crossing the company loses money; right of it, profit.', 'Practice example only (fictional bottle company).'] },
   { id: 'be-sim', section: SEC, title: 'Break-even simulator', render: () => <Simulator />, resettable: true,
     notes: ['Fixed chart window: raising price visibly steepens revenue; raising fixed costs lifts the cost line.', 'Try variable cost ≥ price to show "never breaks even". Try a typed blank value to show validation.', 'Break-even always rounds up to the next whole unit.'] },
   { id: 'be-scenarios', section: SEC, title: 'Guided scenarios', render: () => <Scenarios />, resettable: true,

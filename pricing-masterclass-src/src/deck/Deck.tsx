@@ -17,6 +17,7 @@ export type SyncMsg =
   | { t: 'state'; module: string; index: number }
   | { t: 'nav'; d: 1 | -1 }
   | { t: 'hello' }
+  | { t: 'reset' }
 
 /**
  * Presenter-controlled deck (projector window).
@@ -48,6 +49,7 @@ export default function Deck({ module }: { module: LectureModule }) {
     bc.current = ch
     ch.onmessage = (e: MessageEvent<SyncMsg>) => {
       if (e.data.t === 'nav') go(e.data.d)
+      else if (e.data.t === 'reset') window.location.reload()
       else if (e.data.t === 'hello') ch!.postMessage({ t: 'state', module: module.id, index: iRef.current } satisfies SyncMsg)
     }
     ch.postMessage({ t: 'state', module: module.id, index: iRef.current } satisfies SyncMsg)

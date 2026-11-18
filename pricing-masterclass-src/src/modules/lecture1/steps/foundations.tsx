@@ -27,7 +27,7 @@ function Why() {
         <Tag kind="concept" className="mt-4" />
       </div>
       <div>
-        <p className="font-mono text-sm uppercase tracking-[0.18em] text-paper-mute">Pricing objectives. Click one.</p>
+        <p className="font-mono text-sm uppercase tracking-[0.18em] text-paper-mute">Pricing objectives</p>
         <div className="mt-3 grid gap-3">
           {objs.map((o, k) => (
             <button key={o.t} onClick={() => setOpen(open === k ? null : k)} aria-expanded={open === k}
@@ -77,7 +77,7 @@ function Factors() {
         {col('Internal factors', internal, 'text-teal')}
         {col('External factors', external, 'text-copper')}
       </div>
-      <p className="mt-6 min-h-10 font-hand text-3xl text-gold">{detail ?? 'Click a factor to see what it does.'}</p>
+      <p className="mt-6 min-h-10 font-hand text-3xl text-gold">{detail ?? ''}</p>
     </div>
   )
 }
@@ -85,7 +85,7 @@ function Factors() {
 function Toolkit() {
   const tools = [
     ['Fixed & variable costs', 'Total cost = Fixed + (Variable cost per unit × Units)'],
-    ['Contribution margin', 'Price − Variable cost per unit'],
+    ['Contribution margin', 'Selling price per unit − Variable cost per unit'],
     ['Break-even', 'Fixed costs ÷ Contribution per unit'],
     ['Cost-plus pricing', 'Price = Unit cost × (1 + Markup)'],
     ['Markup vs margin', 'Markup on cost. Margin on price.'],
@@ -111,8 +111,8 @@ function Toolkit() {
 
 export const foundationSteps: Step[] = [
   { id: 'why', section: SEC, title: 'Why price matters and pricing objectives', render: () => <Why />, resettable: true,
-    notes: ['Revenue, profit and demand come from the lecture. Pricing objectives (profit, sales/share, survival, image) are standard chapter content; confirm wording against your textbook.', 'Ask: which objective fits a brand-new product launched on Kickstarter?'] },
+    notes: ['Click an objective to expand it.', 'Revenue, profit and demand come from the lecture. Pricing objectives (profit, sales/share, survival, image) are standard chapter content; confirm wording against your textbook.', 'Ask: which objective fits a brand-new product launched on Kickstarter?'] },
   { id: 'factors', section: SEC, title: 'Internal and external factors', render: () => <Factors />, resettable: true,
-    notes: ['Costs set the floor, customers set the ceiling. Lecture 2 develops the customer side.'] },
+    notes: ['Click a factor to show what it does; click it again to clear.', 'Costs set the floor, customers set the ceiling. Lecture 2 develops the customer side.'] },
   { id: 'toolkit', section: SEC, title: 'The pricing toolkit', render: () => <Toolkit /> },
 ]

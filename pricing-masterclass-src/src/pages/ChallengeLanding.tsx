@@ -170,6 +170,9 @@ export default function ChallengeLanding() {
                 <h1 className="font-display text-5xl font-light text-paper">Pricing team results</h1>
                 <p className="mt-1 font-mono text-sm text-paper-mute">Room {room} · {statusTxt} · {subs.length} submitted</p>
               </div>
+              <div className="flex gap-2">
+                <Btn variant="outline" onClick={fresh}><RefreshCw size={16} /> Clear results</Btn>
+              </div>
               {key?.check && (
                 <Btn variant={reveal ? 'teal' : 'outline'} onClick={() => setReveal((r) => !r)} aria-pressed={reveal}>{reveal ? 'Hide checks' : 'Reveal checks'}</Btn>
               )}

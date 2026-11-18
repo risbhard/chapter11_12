@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
 import { unlockAudio } from './lib/chalk'
+import { purgeOldClass } from './lib/session'
+
+purgeOldClass()
 
 // browsers allow sound only after a click/keypress; unlock on the first one
 for (const ev of ['pointerdown', 'keydown'] as const) window.addEventListener(ev, unlockAudio, { once: false, passive: true })

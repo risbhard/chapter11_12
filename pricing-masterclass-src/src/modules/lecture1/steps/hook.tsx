@@ -14,21 +14,12 @@ function Hero() {
     <div className="relative flex min-h-full flex-col justify-end overflow-hidden bg-ink-950 px-6 pb-8 md:px-14">
       <ProductImage className="absolute inset-0 " caption={false} quietFallback contain />
       <div className="absolute inset-0 bg-gradient-to-r from-ink-950 from-30% via-ink-950/60 via-55% to-transparent" aria-hidden />
-      {['$299', '$499', '$699', '$899'].map((p, k) => (
-        <motion.span
-          key={p} aria-hidden
-          className="pointer-events-none absolute font-mono text-paper/[0.07]"
-          style={{ fontSize: 'clamp(4rem, 11vw, 10rem)', left: `${8 + k * 23}%`, top: `${14 + (k % 2) * 22}%` }}
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: [0, -10, 0] }}
-          transition={{ opacity: { duration: 1.4, delay: 0.4 + k * 0.3 }, y: { duration: 7 + k, repeat: Infinity, ease: 'easeInOut' } }}
-        >{p}</motion.span>
-      ))}
       <div className="relative z-10 max-w-5xl pb-16">
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 1 }}>
           <Eyebrow>Brolan ClearX · Pricing Strategies</Eyebrow>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}>
-          <H1 className="mt-5">Would you pay <span className="text-gold">$899</span> to clean your sneakers?</H1>
+          <H1 className="mt-5">How much would you pay to <span className="text-gold">clean your sneakers?</span></H1>
           <Scribble className="mt-3 h-4 w-80" delay={1.6} />
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8, duration: 1 }}>
@@ -84,26 +75,26 @@ function Video() {
 }
 
 function Poll() {
-  const opts = [299, 499, 699, 899]
+  const opts = [100, 250, 299, 499, 699, 750, 899, 1000]
   const [sel, setSel] = useState<number | null>(null)
   return (
     <div className="mx-auto flex min-h-full max-w-6xl flex-col justify-center px-6 py-6">
       <Eyebrow>Your call</Eyebrow>
       <H1 className="mt-3">What would <span className="text-gold">you</span> pay for this product?</H1>
-      <div className="mt-10 grid grid-cols-2 gap-5 md:grid-cols-4" role="radiogroup" aria-label="Price options">
+      <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4" role="radiogroup" aria-label="Price options">
         {opts.map((p) => {
           const on = sel === p
           return (
             <motion.button key={p} role="radio" aria-checked={on} onClick={() => setSel(on ? null : p)}
               whileTap={{ scale: 0.97 }} animate={{ scale: on ? 1.06 : 1 }}
-              className={`rounded-3xl border-4 py-12 font-mono font-medium transition-colors ${on ? 'border-gold bg-gold text-ink-950' : 'border-paper/25 bg-ink-800 text-paper hover:border-gold/70'}`}
-              style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)' }}>
-              ${p}
+              className={`rounded-3xl border-4 py-9 font-mono font-medium transition-colors ${on ? 'border-gold bg-gold text-ink-950' : 'border-paper/25 bg-ink-800 text-paper hover:border-gold/70'}`}
+              style={{ fontSize: 'clamp(2rem, 4.6vw, 3.8rem)' }}>
+              ${p.toLocaleString("en-US")}
             </motion.button>
           )
         })}
       </div>
-      <p className="mt-6 min-h-8 font-hand text-3xl text-gold">{sel ? `Selected: $${sel}. Hands up. Who agrees?` : 'Show of hands. Click a price to highlight it.'}</p>
+      <p className="mt-6 min-h-8 font-hand text-3xl text-gold">{sel ? `Selected: $${sel}` : ''}</p>
     </div>
   )
 }
@@ -152,10 +143,10 @@ function Transition() {
 }
 
 export const hookSteps: Step[] = [
-  { id: 'hero', section: SEC, title: 'Would you pay $899 to clean your sneakers?', cinematic: true, render: () => <Hero />,
-    notes: ['Let the image and headline sit for a moment before moving on.', 'Product photo: add public/assets/clearx-hero.jpg if the placeholder is showing.'] },
+  { id: 'hero', section: SEC, title: 'How much would you pay to clean your sneakers?', cinematic: true, render: () => <Hero />,
+    notes: ['Let the image and headline sit for a moment before moving on. The price is deliberately not shown until the reveal slide.', 'Product photo: add public/assets/clearx-hero.jpg if the placeholder is showing.'] },
   { id: 'video', section: SEC, title: 'Product video', render: () => <Video />, notes: ['Play the video, then ask: who is the target customer?', 'Two tabs: product video and Kickstarter campaign video.'] },
-  { id: 'poll', section: SEC, title: 'What would you pay?', render: () => <Poll />, resettable: true, notes: ['Take a verbal vote and click the winning price to highlight it. Click again to clear.', 'No devices needed.'] },
+  { id: 'poll', section: SEC, title: 'What would you pay?', render: () => <Poll />, resettable: true, notes: ['Show of hands: read each price aloud and ask who would pay it. Click the winning price to highlight it; click again to clear.', 'Options mix round numbers ($100, $250, $500-ish) with realistic price points. No devices needed.'] },
   { id: 'reveal', section: SEC, title: 'Price reveal', render: () => <Reveal />,
     notes: ['Both figures are advertised US dollars (pre-order US$549, retail US$899 per public listings). Confirm against the live Kickstarter page before class.', 'Ask: how many voted at or above each price?'] },
   { id: 'transition', section: SEC, title: 'Does it make financial sense?', cinematic: true, render: () => <Transition /> },

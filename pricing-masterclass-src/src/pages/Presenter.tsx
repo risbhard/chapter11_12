@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight, FileUp, KeyRound, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileUp, KeyRound, RotateCcw, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { SYNC_CHANNEL, type SyncMsg } from '../deck/Deck'
+import { resetClassData } from '../lib/session'
 import { clearKey, loadKey, saveKey, type AnswerKey } from '../lib/answerKey'
 import { MODULES } from '../modules'
 
@@ -36,6 +37,13 @@ export default function Presenter() {
   const next = mod && state ? mod.steps[state.index + 1] : null
   const keyNotes = step && key?.notes?.[step.id]
 
+  const [cleared, setCleared] = useState(false)
+  const newClass = () => {
+    if (!window.confirm('Start a new class? This clears the results wall, the challenge room and the saved slide position in this browser, and restarts the projector window at slide 1.')) return
+    resetClassData()
+    bc.current?.postMessage({ t: 'reset' } satisfies SyncMsg)
+    setCleared(true)
+  }
   const onFile = async (f?: File) => {
     if (!f) return
     try { setKey(saveKey(await f.text())); setErr('') } catch { setErr('That file is not a valid answer key.') }
@@ -46,6 +54,7 @@ export default function Presenter() {
       <header className="flex items-center justify-between border-b border-paper/15 px-6 py-3">
         <p className="font-mono text-sm uppercase tracking-[0.2em] text-gold">Presenter view · instructor only</p>
         <div className="flex items-center gap-2">
+          <button onClick={newClass} className="flex items-center gap-1.5 rounded-lg border border-paper/30 px-3 py-1.5 text-sm text-paper-dim hover:border-copper hover:text-copper" title="Clear stored results and restart the lecture"><RotateCcw size={15} /> {cleared ? 'Cleared' : 'New class: reset all'}</button>
           <input ref={file} type="file" accept="application/json,.json" className="hidden" onChange={(e) => void onFile(e.target.files?.[0])} />
           {key ? (
             <>
