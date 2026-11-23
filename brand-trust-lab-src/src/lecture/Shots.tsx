@@ -47,7 +47,7 @@ export function ShotOverlay({ shots, index, onClose }: { shots: Found[]; index: 
   const s = shots[index]
   if (!s) return null
   return (
-    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-[#1F1D1A]/95 px-24 pb-28 pt-20" onClick={onClose} role="dialog" aria-label="Screenshot">
+    <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-[#1F1D1A] px-24 pb-28 pt-20" onClick={onClose} role="dialog" aria-label="Screenshot">
       <img src={s.url} alt={s.caption} className="max-h-[820px] max-w-[1700px] rounded-lg bg-white object-contain shadow-2xl" />
       <div className="mt-6 text-[28px] text-ivory">{s.caption}{shots.length > 1 && <span className="ml-4 text-ivory/60">{index + 1} / {shots.length}</span>}</div>
       <div className="mt-2 text-[20px] text-ivory/60">{shots.length > 1 ? '← → switch   ' : ''}S or Esc to close</div>

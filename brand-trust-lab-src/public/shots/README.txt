@@ -19,3 +19,5 @@ hootsuite-listening        21 Social listening            Hootsuite social liste
 
 Take screenshots yourself from the brands' public pages, or use the McGraw Hill instructor resources.
 Check usage terms before sharing the site beyond your own class. Keep files under about 1.5 MB.
+
+Note: google-alerts.png had the account email address covered before publishing. Redact any personal details in screenshots before adding them, because this site is public.
