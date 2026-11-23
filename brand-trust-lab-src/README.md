@@ -29,3 +29,7 @@ Built output goes in `brand-trust-lab/`, source in `brand-trust-lab-src/`, both 
 ## Notes
 - All brands in the hook, audit and dashboard are fictional; all dashboard and NPS numbers are illustrative.
 - Definitions and real-brand examples (Olive Garden, Best Buy, Taco Bell, eBay, H&M, BlackBerry, Visa Secure, Norton Safe Web) follow the McGraw Hill Chapter 10 slides, paraphrased with no publisher images. MACE examples use the fictional Aura Audio. The BlackBerry 2013 rename date is from general knowledge, not the slides.
+
+
+## Real-brand screenshots
+Screens about real brands (13, 14, 15, 18, 19, 21) can show your own screenshots. Drop images into `public/shots/` using the file names listed in `public/shots/README.txt`, rebuild, and a **Screenshots** button (key **S**) appears on that screen. Arrow keys switch images; S or Esc closes. Screens without images look exactly as before. Fictional brands (Aura Audio, Sound Dealz, Volta & Co.) stay fictional and have no screenshots.

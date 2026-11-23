@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight, Expand, MonitorUp, Minimize, RotateCcw } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Expand, Image as ImageIcon, MonitorUp, Minimize, RotateCcw } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { Screen } from './types'
 import { resetScreenState } from './state'
+import { ShotOverlay, useShots } from './Shots'
 
 export const W = 1920
 export const H = 1080
@@ -23,6 +24,8 @@ export default function Stage({ screens }: { screens: Screen[] }) {
   const [resetN, setResetN] = useState(0)
   const [full, setFull] = useState(false)
   const [scale, setScale] = useState(1)
+  const [shotOpen, setShotOpen] = useState(false)
+  const [shotN, setShotN] = useState(0)
   const wrap = useRef<HTMLDivElement>(null)
   const bc = useRef<BroadcastChannel | null>(null)
 
@@ -51,6 +54,9 @@ export default function Stage({ screens }: { screens: Screen[] }) {
   useEffect(() => { bc.current?.postMessage({ t: 'state', index: i }) }, [i])
 
   const iRef = useRef(0); iRef.current = i
+  const found = useShots(screens[i].shots)
+  const shotRef = useRef({ open: false, n: 0, count: 0 }); shotRef.current = { open: shotOpen, n: shotN, count: found.length }
+  useEffect(() => { setShotOpen(false); setShotN(0) }, [i])
   const move = (d: 1 | -1) => { setDir(d); setI((n) => Math.min(last, Math.max(0, n + d))) }
   const go = (d: 1 | -1, e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.detail > 0) e.currentTarget.blur() // a stray Space/Enter after a mouse click must not advance
@@ -73,6 +79,15 @@ export default function Stage({ screens }: { screens: Screen[] }) {
       if (e.ctrlKey || e.metaKey || e.altKey) return
       if ((e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]')) return
       const k = e.key
+      const sh = shotRef.current
+      if (sh.open) {
+        e.preventDefault()
+        if (k === 'Escape' || k === 's' || k === 'S') setShotOpen(false)
+        else if (k === 'ArrowRight' || k === 'PageDown') setShotN((n) => Math.min(sh.count - 1, n + 1))
+        else if (k === 'ArrowLeft' || k === 'PageUp') setShotN((n) => Math.max(0, n - 1))
+        return
+      }
+      if ((k === 's' || k === 'S') && sh.count) { e.preventDefault(); setShotN(0); setShotOpen(true); return }
       if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); move(1) }
       else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); move(-1) }
       else if (k === 'f' || k === 'F') { e.preventDefault(); toggleFull() }
@@ -108,6 +123,7 @@ export default function Stage({ screens }: { screens: Screen[] }) {
         <div className="absolute left-14 top-9 text-[20px] font-medium tracking-wide text-ink-mute">{s.section}</div>
 
         <div className="absolute right-10 top-6 flex items-center gap-1">
+          {found.length > 0 && <button className={chip} onClick={() => { setShotN(0); setShotOpen(true) }} title="Show real screenshots (S)"><ImageIcon size={18} /> Screenshots</button>}
           {s.resettable && (
             <button className={chip} onClick={() => { resetScreenState(s.id); setResetN((n) => n + 1) }} title="Reset this demonstration (R)">
               <RotateCcw size={18} /> Reset
@@ -120,7 +136,9 @@ export default function Stage({ screens }: { screens: Screen[] }) {
         <div className="pointer-events-none absolute bottom-9 left-14 text-[20px] font-medium text-ink-mute tabular" aria-hidden>
           {pad(i + 1)} / {pad(screens.length)}
         </div>
-        <div className="pointer-events-none absolute bottom-[34px] left-[190px] text-[17px] text-ink-mute/70" aria-hidden>← → move   F full screen   N notes   R reset</div>
+        <div className="pointer-events-none absolute bottom-[34px] left-[190px] text-[17px] text-ink-mute/70" aria-hidden>← → move   F full screen   N notes   R reset{found.length > 0 ? '   S screenshots' : ''}</div>
+
+        {shotOpen && <ShotOverlay shots={found} index={shotN} onClose={() => setShotOpen(false)} />}
 
         <div className="absolute bottom-7 right-12 z-30 flex items-center gap-4">
           <button

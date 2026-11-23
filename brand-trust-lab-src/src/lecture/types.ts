@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 
+export type Shot = { file: string; caption: string }
+
 export type Screen = {
   id: string
   /** shown quietly in the top-left corner */
@@ -11,4 +13,6 @@ export type Screen = {
   notes?: string[]
   /** shows a Reset button that restores this screen's demonstration to its starting state */
   resettable?: boolean
+  /** real-brand screenshots shown on demand (S key); files live in public/shots/<file>.png */
+  shots?: Shot[]
 }
