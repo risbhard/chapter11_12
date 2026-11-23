@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: #E4DAC6;
+  color: #221F1B;
+  font-family: 'Hanken Grotesk Variable', system-ui, sans-serif;
+  overflow: hidden;              /* the lecture never scrolls */
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid #B0602A; outline-offset: 3px; }
+.tabular { font-variant-numeric: tabular-nums; }
+.type-display { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; letter-spacing: -0.01em; line-height: 1.02; }
+/* thin measuring ruler used as a quiet lab motif */
+.ruler {
+  height: 18px;
+  background-image:
+    repeating-linear-gradient(90deg, #221F1B 0 1.5px, transparent 1.5px 24px),
+    repeating-linear-gradient(90deg, #221F1B 0 1px, transparent 1px 6px);
+  background-size: 100% 18px, 100% 9px;
+  background-repeat: no-repeat;
+  background-position: 0 0, 0 0;
+  opacity: .55;
+}
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
