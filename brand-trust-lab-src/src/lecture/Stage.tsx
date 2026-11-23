@@ -28,6 +28,8 @@ export default function Stage({ screens }: { screens: Screen[] }) {
   const [shotN, setShotN] = useState(0)
   const wrap = useRef<HTMLDivElement>(null)
   const bc = useRef<BroadcastChannel | null>(null)
+  const iRef = useRef(0)
+  iRef.current = i
 
   useLayoutEffect(() => {
     const fit = () => setScale(Math.min(window.innerWidth / W, window.innerHeight / H))
@@ -47,13 +49,12 @@ export default function Stage({ screens }: { screens: Screen[] }) {
     let ch: BroadcastChannel | null = null
     try { ch = new BroadcastChannel(CHANNEL) } catch { return }
     bc.current = ch
-    ch.onmessage = (e) => { if (e.data?.t === 'hello') ch!.postMessage({ t: 'state', index: i }) }
+    ch.onmessage = (e) => { if (e.data?.t === 'hello') ch!.postMessage({ t: 'state', index: iRef.current }) }
     return () => { ch!.close(); bc.current = null }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => { bc.current?.postMessage({ t: 'state', index: i }) }, [i])
 
-  const iRef = useRef(0); iRef.current = i
   const found = useShots(screens[i].shots)
   const shotRef = useRef({ open: false, n: 0, count: 0 }); shotRef.current = { open: shotOpen, n: shotN, count: found.length }
   useEffect(() => { setShotOpen(false); setShotN(0) }, [i])

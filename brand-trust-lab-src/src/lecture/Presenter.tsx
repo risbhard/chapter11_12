@@ -10,8 +10,12 @@ export default function Presenter({ screens }: { screens: Screen[] }) {
     let ch: BroadcastChannel | null = null
     try { ch = new BroadcastChannel(CHANNEL) } catch { return }
     ch.onmessage = (e) => { if (e.data?.t === 'state') setI(e.data.index) }
-    ch.postMessage({ t: 'hello' })
-    return () => ch!.close()
+    // ask for the current screen on open, whenever this window is focused, and every few seconds (covers a late-opened or backgrounded window)
+    const ask = () => ch!.postMessage({ t: 'hello' })
+    ask()
+    const timer = window.setInterval(ask, 2000)
+    window.addEventListener('focus', ask)
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', ask); ch!.close() }
   }, [])
   const s = screens[i]; const nx = screens[i + 1]
   return (
