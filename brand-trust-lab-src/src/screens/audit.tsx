@@ -21,35 +21,32 @@ const AuditTask = () => (
   </Slide>
 )
 
-/* 11 Debrief: instructor reveals each issue */
+/* 11 Debrief: one click per issue */
 const AuditDebrief = () => {
   const [revealed, setRevealed] = useKeep<number[]>('audit-debrief', 'revealed', [])
   const [active, setActive] = useKeep<number | null>('audit-debrief', 'active', null)
-  const [level, setLevel] = useKeep<Record<number, number>>('audit-debrief', 'level', {})
-  const pick = (n: number) => { setActive(n); setRevealed((r) => (r.includes(n) ? r : [...r, n])); setLevel((l) => ({ ...l, [n]: l[n] ?? 1 })) }
+  const pick = (n: number) => { setActive(n); setRevealed((r) => (r.includes(n) ? r : [...r, n])) }
   const it = issues.find((x) => x.n === active)
-  const lv = active ? level[active] ?? 1 : 0
-  const more = () => active && setLevel((l) => ({ ...l, [active]: Math.min(3, (l[active] ?? 1) + 1) }))
   return (
     <Slide>
       <div className="flex flex-1 gap-14">
         <div className="w-[1120px] flex-none"><div className="mt-2"><AuditSite marks={{ revealed, active }} /></div></div>
         <div className="flex flex-1 flex-col pt-2">
           <h1 className="type-display text-[64px] leading-none">Six problems</h1>
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 flex items-center gap-3">
             {issues.map((x) => (
               <button key={x.n} onClick={() => pick(x.n)} aria-label={`Reveal issue ${x.n}`}
-                className={`flex h-[72px] w-[72px] items-center justify-center rounded-full border-2 text-[32px] font-bold transition-colors ${active === x.n ? 'border-brick bg-brick text-white' : revealed.includes(x.n) ? 'border-brick text-brick' : 'border-ink/60 text-ink hover:bg-ink hover:text-ivory'}`}>{x.n}</button>
+                className={`flex h-[68px] w-[68px] items-center justify-center rounded-full border-2 text-[30px] font-bold transition-colors ${active === x.n ? 'border-brick bg-brick text-white' : revealed.includes(x.n) ? 'border-brick text-brick' : 'border-ink/60 text-ink hover:bg-ink hover:text-ivory'}`}>{x.n}</button>
             ))}
           </div>
-          <div className="mt-8 flex-1">
-            {!it ? <p className="text-[32px] leading-snug text-ink-mute">Pick a number to reveal that problem on the page.</p> : (
-              <motion.div key={it.n} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-                <div className="type-display text-[50px] leading-[1.02]">{it.title}</div>
-                <div className="text-[28px] leading-snug"><Tag tone="brick">The problem</Tag><div className="mt-1">{it.problem}</div></div>
-                {lv >= 2 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[28px] leading-snug"><Tag tone="ink">Why trust drops</Tag><div className="mt-1">{it.why}</div></motion.div>}
-                {lv >= 3 && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[28px] leading-snug"><Tag tone="sage">The fix</Tag><div className="mt-1">{it.fix}</div></motion.div>}
-                {lv < 3 && <Btn tone="ghost" onClick={more}>{lv === 1 ? 'Why does it hurt trust?' : 'What should they do?'}</Btn>}
+          {revealed.length < 6 && <div className="mt-4"><Btn tone="ghost" className="!px-5 !py-2 !text-[22px]" onClick={() => setRevealed([1, 2, 3, 4, 5, 6])}>Mark all six</Btn></div>}
+          <div className="mt-6 flex-1">
+            {!it ? <p className="text-[30px] leading-snug text-ink-mute">Pick a number to see that problem, why it hurts trust and the fix.</p> : (
+              <motion.div key={it.n} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+                <div className="type-display text-[48px] leading-[1.02]">{it.title}</div>
+                <div className="text-[26px] leading-snug"><Tag tone="brick">The problem</Tag><div className="mt-1">{it.problem}</div></div>
+                <div className="text-[26px] leading-snug"><Tag tone="ink">Why trust drops</Tag><div className="mt-1">{it.why}</div></div>
+                <div className="text-[26px] leading-snug"><Tag tone="sage">The fix</Tag><div className="mt-1">{it.fix}</div></div>
               </motion.div>
             )}
           </div>

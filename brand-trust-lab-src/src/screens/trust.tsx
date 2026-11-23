@@ -20,7 +20,7 @@ const Promise_ = () => {
       <div className="mt-10 flex items-center gap-4"><Tag tone="copper">Our promise</Tag><span className="type-display text-[72px]">Delivery in 3 days</span></div>
       <div className="mt-10 max-w-[1500px]">
         <div className="flex justify-between text-[24px] text-ink-mute tabular">{Array.from({ length: 10 }, (_, k) => <span key={k}>{k + 1}</span>)}</div>
-        <input aria-label="Days to deliver" type="range" min={1} max={10} step={1} value={d} onChange={(e) => setD(+e.target.value)} className="mt-2 h-4 w-full cursor-pointer accent-[#B0602A]" />
+        <input aria-label="Days to deliver" type="range" min={1} max={10} step={1} value={d} onChange={(e) => setD(+e.target.value)} onPointerUp={(e) => e.currentTarget.blur()} className="mt-2 h-4 w-full cursor-pointer accent-[#B0602A]" />
         <div className="mt-2 text-[28px] text-ink-soft">Order arrives on day <b className="tabular">{d}</b></div>
       </div>
       <div className="mt-8 flex max-w-[1500px] items-center gap-8">
@@ -69,14 +69,12 @@ const Consistency = () => {
 /* 16 Transparency */
 const Transparency = () => {
   const [m, setM] = useKeep('transparency', 'm', 'hidden')
-  const [zoom, setZoom] = useKeep('transparency', 'zoom', false)
   return (
     <Slide title="Transparency: what you hide, they find">
       <div className="mt-6 flex gap-14">
         <div className="w-[520px] flex-none">
-          <Seg opts={[['hidden', 'Hidden terms'], ['clear', 'Clear terms']]} value={m} onPick={(v) => { setM(v); setZoom(false) }} />
-          <p className="mt-10 text-[34px] leading-snug">{m === 'hidden' ? 'The price after the trial is in the fine print.' : 'The price, the date and the way out are in plain sight.'}</p>
-          {m === 'hidden' && <div className="mt-8"><Btn tone="ghost" onClick={() => setZoom(!zoom)}>{zoom ? 'Zoom out' : 'Zoom in on the fine print'}</Btn></div>}
+          <Seg opts={[['hidden', 'Hidden terms'], ['clear', 'Clear terms']]} value={m} onPick={setM} />
+          <p className="mt-10 text-[34px] leading-snug">{m === 'hidden' ? 'The price after the trial is in the fine print at the bottom.' : 'The price, the date and the way out are in plain sight.'}</p>
           <p className="type-display mt-10 text-[44px] italic leading-[1.1] text-copper-deep">{m === 'hidden' ? 'A surprise charge turns a customer into a critic.' : 'Nothing to discover later means nothing to resent.'}</p>
         </div>
         <div className="flex-1">
@@ -87,7 +85,7 @@ const Transparency = () => {
               <p className="mt-4 text-[28px]">Extended warranty and priority support.</p>
               {m === 'clear' && <div className="mt-8 rounded-lg border-2 border-[#4F7A5A] bg-[#E6EFE4] px-8 py-5 text-left text-[26px] leading-snug"><b>Free for 7 days. Then $14.99 per month.</b><br />Cancel anytime in Settings. We email you 2 days before the first charge.</div>}
               <div className="mt-8 rounded-full bg-[#26221D] px-14 py-4 text-[28px] font-semibold text-white">Start free trial</div>
-              {m === 'hidden' && <p className={`mt-5 max-w-[620px] transition-all ${zoom ? 'rounded border-2 border-[#A8452F] bg-white p-4 text-[26px] leading-snug text-[#26221D]' : 'text-[13px] text-[#B0A89A]'}`}>By continuing you agree to the Terms. Auto-renews at $14.99 per month after 7 days unless cancelled 24 hours before renewal.</p>}
+              {m === 'hidden' && <p className="mt-5 max-w-[620px] text-[13px] text-[#B0A89A]">By continuing you agree to the Terms. Auto-renews at $14.99 per month after 7 days unless cancelled 24 hours before renewal.</p>}
             </div>
           </BrowserFrame>
         </div>
@@ -132,43 +130,26 @@ const SocialProof = () => {
   )
 }
 
-/* 18 Trust signals, guarantees, privacy */
+/* 18 Trust signals: all visible, no clicks */
 const icons: Record<string, JSX.Element> = { https: <Lock size={30} />, verify: <CreditCard size={30} />, guarantee: <ShieldCheck size={30} />, safe: <BadgeCheck size={30} />, trial: <Gift size={30} />, policy: <FileText size={30} /> }
-const Signals = () => {
-  const [sel, setSel] = useKeep<string | null>('signals', 'sel', null)
-  const cur = checkoutSignals.find((s) => s.id === sel)
-  return (
-    <Slide title="Signals help. Proof matters more." lead="Click each signal at checkout.">
-      <div className="mt-8 flex gap-14">
-        <div className="w-[760px] flex-none rounded-xl border border-ink/20 bg-white p-8">
-          <div className="type-display text-[44px]">Checkout</div>
-          <div className="mt-4 space-y-2">
-            {checkoutSignals.map((s) => (
-              <button key={s.id} onClick={() => setSel(s.id)} className={`flex w-full items-center gap-5 rounded-lg border-2 px-5 py-3 text-left text-[28px] transition-colors ${sel === s.id ? 'border-copper bg-copper-soft/50' : 'border-ivory-line hover:border-ink/50'}`}>
-                <span className="text-copper-deep">{icons[s.id]}</span>{s.title}
-              </button>
-            ))}
-          </div>
+const Signals = () => (
+  <Slide title="Signals help. Proof matters more.">
+    <div className="mt-5 grid grid-cols-[430px_1fr_1fr] gap-x-10 border-b-2 border-ink/70 pb-2 text-[24px] font-semibold text-ink-mute"><span>Signal</span><span>What it tells customers</span><span>Do not over-trust it</span></div>
+    <div className="divide-y divide-ivory-line">
+      {checkoutSignals.map((s) => (
+        <div key={s.id} className="grid grid-cols-[430px_1fr_1fr] items-start gap-x-10 py-[14px]">
+          <div className="flex items-start gap-4"><span className="mt-1 text-copper-deep">{icons[s.id]}</span><div><div className="text-[29px] font-semibold leading-tight">{s.title}</div>{s.ex && <div className="mt-1 text-[22px] leading-tight text-copper-deep">{s.ex}</div>}</div></div>
+          <p className="text-[25px] leading-snug">{s.tells}</p>
+          <p className="text-[25px] leading-snug text-brick">{s.caution}</p>
         </div>
-        <div className="flex-1 pt-2">
-          {cur ? (
-            <motion.div key={sel} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-              <div className="type-display text-[56px] leading-none">{cur.title}</div>
-              <div><Tag tone="sage">What it tells customers</Tag><p className="mt-2 text-[34px] leading-snug">{cur.tells}</p></div>
-              <div><Tag tone="brick">Do not over-trust it</Tag><p className="mt-2 text-[34px] leading-snug">{cur.caution}</p></div>
-              {cur.ex && <div><Tag tone="copper">In the wild</Tag><p className="mt-2 text-[34px] leading-snug">{cur.ex}</p></div>}
-            </motion.div>
-          ) : <p className="text-[34px] text-ink-mute">Pick a signal to see what it tells customers, and what it cannot prove.</p>}
-        </div>
-      </div>
-    </Slide>
-  )
-}
+      ))}
+    </div>
+  </Slide>
+)
 
 /* 19 Responding to a negative review */
 const Respond = () => {
   const [m, setM] = useKeep('respond', 'm', 'defensive')
-  const [parts, setParts] = useKeep('respond', 'parts', false)
   const pro = m === 'pro'
   return (
     <Slide title="Respond in public, resolve in private">
@@ -181,34 +162,29 @@ const Respond = () => {
       {pro && <p className="mt-6 max-w-[1500px] text-[26px] leading-snug text-ink-soft"><b>Real example:</b> {realBrands.bestbuy}</p>}
       {pro && (
         <div className="mt-auto flex items-center gap-4">
-          {!parts ? <Btn tone="ghost" onClick={() => setParts(true)}>Show what it does</Btn> : reviewDemo.parts.map((p) => <div key={p.t} className="rounded-sm border-[1.5px] border-sage px-4 py-2 text-[24px] text-sage"><b>{p.t}</b> {p.d}</div>)}
+          {reviewDemo.parts.map((p) => <div key={p.t} className="rounded-sm border-[1.5px] border-sage px-4 py-2 text-[24px] text-sage"><b>{p.t}</b> {p.d}</div>)}
         </div>
       )}
     </Slide>
   )
 }
 
-/* 20 Shortcuts that backfire */
-const Backfire = () => {
-  const [n, setN] = useKeep<number[]>('backfire', 'n', [0, 0])
-  const bump = (k: number) => setN((a) => a.map((v, i) => (i === k ? Math.min(3, v + 1) : v)))
-  return (
-    <Slide title="Two shortcuts that backfire" lead="Click to see what happens next.">
-      <div className="mt-10 grid grid-cols-2 gap-20 border-t-2 border-ink/70 pt-8">
-        {backfire.map((b, k) => (
-          <div key={b.t}>
-            <div className="type-display text-[60px] leading-none">{b.t}</div>
-            <div className="mt-8 space-y-5 text-[32px] leading-snug">
-              {b.steps.slice(0, n[k]).map((s, j) => <motion.div key={j} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-4"><span className="type-display text-[48px] leading-none text-copper">{j + 1}</span><span>{s}</span></motion.div>)}
-            </div>
-            {n[k] < 3 && <div className="mt-8"><Btn tone="ghost" onClick={() => bump(k)}>{n[k] === 0 ? 'What happens?' : 'And then?'}</Btn></div>}
+/* 20 Shortcuts that backfire: all visible */
+const Backfire = () => (
+  <Slide title="Two shortcuts that backfire">
+    <div className="mt-10 grid grid-cols-2 gap-20 border-t-2 border-ink/70 pt-8">
+      {backfire.map((b) => (
+        <div key={b.t}>
+          <div className="type-display text-[60px] leading-none">{b.t}</div>
+          <div className="mt-8 space-y-5 text-[31px] leading-snug">
+            {b.steps.map((st, j) => <div key={j} className="flex gap-4"><span className="type-display text-[48px] leading-none text-copper">{j + 1}</span><span>{st}</span></div>)}
           </div>
-        ))}
-      </div>
-      <p className="mt-auto max-w-[1400px] text-[26px] leading-snug text-ink-soft">{realBrands.pitfalls}</p>
-    </Slide>
-  )
-}
+        </div>
+      ))}
+    </div>
+    <p className="mt-auto max-w-[1400px] text-[26px] leading-snug text-ink-soft">{realBrands.pitfalls}</p>
+  </Slide>
+)
 
 /* 21 Social listening */
 const topics = ['All', 'Delivery', 'Sound', 'Support', 'Price'] as const
@@ -246,8 +222,8 @@ export const trustScreens: Screen[] = [
   { id: 'consistency', section: 'E. Trust and reputation', title: 'Consistency across channels', render: () => <Consistency />, resettable: true, notes: ['Toggle between consistent and inconsistent. Ask: which brand would you believe? Which price is real?', 'Publisher slide 19: Olive Garden is consistent across its website, X and Facebook.'] },
   { id: 'transparency', section: 'E. Trust and reputation', title: 'Transparency: subscription terms', render: () => <Transparency />, resettable: true, notes: ['Hidden terms: zoom in on the fine print. Clear terms: price, timing and the way out are visible.', 'Publisher slide 20: key decision information should not be buried in terms and conditions; a commitment period must be made clear. Hiding details where consumers rarely look can diminish trust.'] },
   { id: 'proof', section: 'E. Trust and reputation', title: 'Social proof and third-party reviews', render: () => <SocialProof />, resettable: true, notes: ['A perfect 5.0 with identical comments is less believable than a realistic mix with specifics and owner replies.', 'Distributions are illustrative.'] },
-  { id: 'signals', section: 'E. Trust and reputation', title: 'Trust signals, guarantees, privacy and security', render: () => <Signals />, resettable: true, notes: ['Publisher slides 23 to 26: eBay money-back guarantee, Visa Secure, free trials, HTTPS with the lock symbol, Norton Safe Web.', 'Trust signals are not guaranteed safety. HTTPS protects data in transit; it does not prove a business is legitimate. Badges must be genuine and verifiable.'] },
-  { id: 'respond', section: 'E. Trust and reputation', title: 'Responding to a negative review', render: () => <Respond />, resettable: true, notes: ['Show the defensive reply first. Then the professional one, and reveal what it does: acknowledge, apologize, next step, move private.', 'Publisher slide 21: Best Buy replies to Facebook complaints and moves details to private message.', 'Do not reveal Activity 2 here; this review is different.'] },
-  { id: 'backfire', section: 'E. Trust and reputation', title: 'Shortcuts that backfire', render: () => <Backfire />, resettable: true, notes: ['Deleting legitimate criticism and posting fake reviews both damage credibility. Never invent reviews.', 'Publisher slide 29: avoid deleting negative reviews needlessly (censorship damages credibility) and avoid posting fake reviews. Decide who responds, to what, how soon and in what tone.'] },
+  { id: 'signals', section: 'E. Trust and reputation', title: 'Trust signals, guarantees, privacy and security', render: () => <Signals />, notes: ['Publisher slides 23 to 26: eBay money-back guarantee, Visa Secure, free trials, HTTPS with the lock symbol, Norton Safe Web.', 'Trust signals are not guaranteed safety. HTTPS protects data in transit; it does not prove a business is legitimate. Badges must be genuine and verifiable.'] },
+  { id: 'respond', section: 'E. Trust and reputation', title: 'Responding to a negative review', render: () => <Respond />, resettable: true, notes: ['Show the defensive reply first, then switch to the professional one. Point out the four parts: acknowledge, apologize, next step, move private.', 'Publisher slide 21: Best Buy replies to Facebook complaints and moves details to private message.', 'Do not reveal Activity 2 here; this review is different.'] },
+  { id: 'backfire', section: 'E. Trust and reputation', title: 'Shortcuts that backfire', render: () => <Backfire />, notes: ['Deleting legitimate criticism and posting fake reviews both damage credibility. Never invent reviews.', 'Publisher slide 29: avoid deleting negative reviews needlessly (censorship damages credibility) and avoid posting fake reviews. Decide who responds, to what, how soon and in what tone.'] },
   { id: 'listening', section: 'E. Trust and reputation', title: 'Social listening', render: () => <Listening />, resettable: true, notes: ['Filter by topic. Delivery is half of all mentions and all negative, even though the overall picture looks fine.', 'Look for repeated topics, not just overall ratings.', 'Publisher slides 22, 27 and 28: Taco Bell\u2019s Fish Bowl, Google Alerts, Brand24, Hootsuite sentiment.'] },
 ]

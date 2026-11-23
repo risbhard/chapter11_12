@@ -12,8 +12,9 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 /**
  * The lecture stage: a fixed 1920x1080 canvas scaled to fit any viewport (letterboxed).
- * NAVIGATION: the ONLY way to change screen is clicking Back or Next. There are deliberately no
- * keyboard, wheel, swipe, timer or progress-bar jumps. Interactions inside a screen never advance it.
+ * NAVIGATION: Back/Next buttons, or the keyboard (arrows, PageUp/PageDown for clickers). There is deliberately no
+ * wheel, swipe, timer or progress-bar jump. Interactions inside a screen never advance it.
+ * Keys: Right/PageDown next, Left/PageUp back, F full screen, N notes window, R reset this screen.
  */
 export default function Stage({ screens }: { screens: Screen[] }) {
   const last = screens.length - 1
@@ -49,10 +50,11 @@ export default function Stage({ screens }: { screens: Screen[] }) {
   }, [])
   useEffect(() => { bc.current?.postMessage({ t: 'state', index: i }) }, [i])
 
+  const iRef = useRef(0); iRef.current = i
+  const move = (d: 1 | -1) => { setDir(d); setI((n) => Math.min(last, Math.max(0, n + d))) }
   const go = (d: 1 | -1, e: React.MouseEvent<HTMLButtonElement>) => {
     if (e.detail > 0) e.currentTarget.blur() // a stray Space/Enter after a mouse click must not advance
-    setDir(d)
-    setI((n) => Math.min(last, Math.max(0, n + d)))
+    move(d)
   }
 
   const s = screens[i]
@@ -64,6 +66,23 @@ export default function Stage({ screens }: { screens: Screen[] }) {
     const base = window.location.href.split('#')[0]
     window.open(`${base}#/presenter`, 'brand-trust-presenter', 'width=1100,height=760')
   }
+
+  const resetNow = () => { const sc = screens[iRef.current]; if (sc.resettable) { resetScreenState(sc.id); setResetN((n) => n + 1) } }
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      if ((e.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]')) return
+      const k = e.key
+      if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); move(1) }
+      else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); move(-1) }
+      else if (k === 'f' || k === 'F') { e.preventDefault(); toggleFull() }
+      else if (k === 'n' || k === 'N') { e.preventDefault(); openPresenter() }
+      else if (k === 'r' || k === 'R') { e.preventDefault(); resetNow() }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const chip = 'flex items-center gap-2 rounded-full px-4 py-2 text-[18px] font-medium text-ink-mute hover:text-copper'
 
@@ -90,27 +109,28 @@ export default function Stage({ screens }: { screens: Screen[] }) {
 
         <div className="absolute right-10 top-6 flex items-center gap-1">
           {s.resettable && (
-            <button className={chip} onClick={() => { resetScreenState(s.id); setResetN((n) => n + 1) }} title="Reset this demonstration">
+            <button className={chip} onClick={() => { resetScreenState(s.id); setResetN((n) => n + 1) }} title="Reset this demonstration (R)">
               <RotateCcw size={18} /> Reset
             </button>
           )}
-          <button className={chip} onClick={openPresenter} title="Open instructor notes in a second window"><MonitorUp size={18} /> Notes</button>
-          <button className={chip} onClick={toggleFull} title="Full screen">{full ? <Minimize size={18} /> : <Expand size={18} />} {full ? 'Exit' : 'Full screen'}</button>
+          <button className={chip} onClick={openPresenter} title="Open instructor notes in a second window (N)"><MonitorUp size={18} /> Notes</button>
+          <button className={chip} onClick={toggleFull} title="Full screen (F)">{full ? <Minimize size={18} /> : <Expand size={18} />} {full ? 'Exit' : 'Full screen'}</button>
         </div>
 
         <div className="pointer-events-none absolute bottom-9 left-14 text-[20px] font-medium text-ink-mute tabular" aria-hidden>
           {pad(i + 1)} / {pad(screens.length)}
         </div>
+        <div className="pointer-events-none absolute bottom-[34px] left-[190px] text-[17px] text-ink-mute/70" aria-hidden>← → move   F full screen   N notes   R reset</div>
 
         <div className="absolute bottom-7 right-12 z-30 flex items-center gap-4">
           <button
-            onClick={(e) => go(-1, e)} disabled={i === 0} aria-label="Back"
+            onClick={(e) => go(-1, e)} disabled={i === 0} aria-label="Back" title="Back (Left arrow or PageUp)"
             className="flex items-center gap-2 rounded-full border-2 border-ink/80 bg-ivory px-8 py-4 text-[26px] font-semibold text-ink transition-colors hover:bg-ink hover:text-ivory disabled:cursor-default disabled:border-ink/15 disabled:text-ink/25 disabled:hover:bg-ivory disabled:hover:text-ink/25"
           >
             <ChevronLeft size={28} /> Back
           </button>
           <button
-            onClick={(e) => go(1, e)} disabled={i === last} aria-label="Next"
+            onClick={(e) => go(1, e)} disabled={i === last} aria-label="Next" title="Next (Right arrow or PageDown)"
             className="flex items-center gap-2 rounded-full border-2 border-copper bg-copper px-10 py-4 text-[26px] font-semibold text-ivory transition-colors hover:border-copper-deep hover:bg-copper-deep disabled:cursor-default disabled:border-ink/15 disabled:bg-ink/10 disabled:text-ink/25"
           >
             Next <ChevronRight size={28} />

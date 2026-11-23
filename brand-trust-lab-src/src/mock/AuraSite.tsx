@@ -19,9 +19,9 @@ export default function AuraSite({ height = 584 }: { height?: number }) {
             <div className="type-display text-[44px] leading-none">Halo One</div>
             <div className="mt-1 text-[20px] text-[#5B5249]">Wireless over-ear headphones</div>
             <div className="mt-2 flex items-baseline gap-3"><span className="text-[44px] font-semibold">$99</span><span className="text-[18px] text-[#5B5249]">free shipping over $50</span></div>
-            <Hot id="specs" className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-[19px]">
+            <div className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1 text-[19px]">
               <span>40-hour battery</span><span>Active noise cancelling</span><span>Bluetooth 5.3</span><span>250 g, foldable</span>
-            </Hot>
+            </div>
             <Hot id="reviews" className="mt-3 flex items-center gap-2 text-[19px]">
               <span className="flex text-[#C27A3B]">{[0, 1, 2, 3, 4].map((k) => <Star key={k} size={19} fill="currentColor" />)}</span>
               <span className="font-semibold">4.6</span><span className="text-[#5B5249]">from 1,284 verified buyers</span>
@@ -32,7 +32,7 @@ export default function AuraSite({ height = 584 }: { height?: number }) {
         <div className="mx-7 mt-4 grid grid-cols-3 gap-4 text-[18px] leading-tight">
           <Hot id="policy" className="flex items-start gap-3 rounded-lg bg-[#F1EADB] p-3"><Truck size={26} className="flex-none text-[#8A4A1F]" /><span><b>Ships in 3 to 5 days.</b> Cost shown before you pay. 30-day free returns.</span></Hot>
           <Hot id="support" className="flex items-start gap-3 rounded-lg bg-[#F1EADB] p-3"><Headset size={26} className="flex-none text-[#8A4A1F]" /><span><b>Real support.</b> Chat or call, 8am to 8pm, seven days.</span></Hot>
-          <Hot id="checkout" className="flex items-start gap-3 rounded-lg bg-[#F1EADB] p-3"><ShieldCheck size={26} className="flex-none text-[#8A4A1F]" /><span><b>Total $99.00.</b> Tax and shipping are itemized at checkout.</span></Hot>
+          <div className="flex items-start gap-3 rounded-lg bg-[#F1EADB] p-3"><ShieldCheck size={26} className="flex-none text-[#8A4A1F]" /><span><b>Total $99.00.</b> Tax and shipping are itemized at checkout.</span></div>
         </div>
         <div className="mx-7 mt-3 text-[16px] text-[#5B5249]">Privacy policy   Terms   Contact   About us</div>
       </div>

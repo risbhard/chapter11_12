@@ -3,7 +3,7 @@
 Instructor-led lecture, 26 screens, Vite + React + TypeScript + Tailwind. Fully offline: no Ably, no backend, no stored data.
 
 ## Navigation rule
-The ONLY way to change screen is the **Back** and **Next** buttons (bottom-right). No keyboard, wheel, swipe, timer, progress-bar or menu navigation exists in the code. Interactions inside a screen never advance the lecture. Back/Next keep each screen's state; **Reset** (top-right, where shown) restores one screen.
+Screens change with the **Back** / **Next** buttons (bottom-right) or the keyboard: **Right arrow / PageDown** next, **Left arrow / PageUp** back (works with presentation clickers), **F** full screen, **N** notes window, **R** reset the current screen. No wheel, swipe, timer, progress-bar or menu navigation exists in the code. Interactions inside a screen never advance the lecture. Back/Next keep each screen's state; **Reset** (top-right, where shown) restores one screen.
 
 ## Run locally
     cd brand-trust-lab-src

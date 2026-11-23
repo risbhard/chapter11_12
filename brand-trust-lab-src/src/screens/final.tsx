@@ -91,7 +91,7 @@ const Nps = () => {
           {rows.map(([k, l, r, c]) => (
             <div key={k}>
               <div className="flex items-baseline justify-between"><span className="text-[32px] font-semibold" style={{ color: k === 's' ? '#6B6256' : c }}>{l} <span className="font-normal text-ink-mute">({r})</span></span><span className="text-[34px] font-semibold tabular">{v[k]} <span className="text-[22px] font-normal text-ink-mute">people</span></span></div>
-              <input aria-label={`${l} count`} type="range" min={0} max={100} value={v[k]} onChange={(e) => setV({ ...v, [k]: +e.target.value })} className="mt-1 h-4 w-full cursor-pointer" style={{ accentColor: c }} />
+              <input aria-label={`${l} count`} type="range" min={0} max={100} value={v[k]} onChange={(e) => setV({ ...v, [k]: +e.target.value })} onPointerUp={(e) => e.currentTarget.blur()} className="mt-1 h-4 w-full cursor-pointer" style={{ accentColor: c }} />
             </div>
           ))}
           <div className="flex h-[30px] w-full gap-[2px]">{total ? rows.map(([k, , , c]) => <div key={k} style={{ flex: v[k], background: k === 's' ? '#B8AE9A' : c }} />) : <div className="flex-1 bg-ivory-deep" />}</div>
@@ -136,26 +136,17 @@ const Fix = () => {
 }
 
 /* 26 Closing */
-const Close = () => {
-  const [on, setOn] = useKeep('close', 'on', false)
-  return (
-    <Slide>
-      <div className="flex flex-1 flex-col justify-center">
-        <h1 className="type-display max-w-[1500px] text-[132px] leading-[0.95]">A brand can buy attention.<br />Can it buy trust?</h1>
-        <div className="mt-12 min-h-[260px]">
-          {!on ? <Btn tone="ghost" onClick={() => setOn(true)}>The chapter in three lines</Btn> : (
-            <Reveal show>
-              <div className="grid max-w-[1650px] grid-cols-3 gap-12 border-t-2 border-ink/70 pt-6">
-                {summary.map((s, k) => <div key={s} className="flex gap-4"><span className="type-display text-[72px] leading-none text-copper">{k + 1}</span><span className="text-[34px] leading-snug">{s}</span></div>)}
-              </div>
-              <p className="type-display mt-10 text-[48px] italic text-copper-deep">Now let&rsquo;s apply these ideas in our class activity.</p>
-            </Reveal>
-          )}
-        </div>
+const Close = () => (
+  <Slide>
+    <div className="flex flex-1 flex-col justify-center">
+      <h1 className="type-display max-w-[1500px] text-[132px] leading-[0.95]">A brand can buy attention.<br />Can it buy trust?</h1>
+      <div className="mt-12 grid max-w-[1650px] grid-cols-3 gap-12 border-t-2 border-ink/70 pt-6">
+        {summary.map((s, k) => <div key={s} className="flex gap-4"><span className="type-display text-[72px] leading-none text-copper">{k + 1}</span><span className="text-[34px] leading-snug">{s}</span></div>)}
       </div>
-    </Slide>
-  )
-}
+      <p className="type-display mt-10 text-[48px] italic text-copper-deep">Now let&rsquo;s apply these ideas in our class activity.</p>
+    </div>
+  </Slide>
+)
 
 export const activity2Screens: Screen[] = [
   { id: 'activity2', section: 'F. Activity 2', title: 'Responding to a negative review', render: () => <Activity2 />, resettable: true, notes: ['Ungraded and brief. Read the review aloud, take a show of hands for A, B or C, then reveal.', 'C is strongest: it acknowledges the delay, apologizes, gives a clear next step and moves personal order details to a private support channel.', 'Reinforce empathy, transparency, accountability and responsiveness.'] },
@@ -166,5 +157,5 @@ export const measureScreens: Screen[] = [
 ]
 export const closeScreens: Screen[] = [
   { id: 'fix', section: 'H. Closing synthesis', title: 'How Sound Dealz could earn trust', render: () => <Fix />, resettable: true, notes: ['Back to the opening comparison. Six changes: brand consistency, transparency, customer reviews, customer service, security practices, reputation monitoring.', 'Trust is rebuilt through evidence over time, not through a redesign alone.'] },
-  { id: 'close', section: 'H. Closing synthesis', title: 'Can a brand buy trust?', render: () => <Close />, resettable: true, notes: ['Ask the question, pause, then reveal the three lines.', 'Transition into your separate in-class activity.'] },
+  { id: 'close', section: 'H. Closing synthesis', title: 'Can a brand buy trust?', render: () => <Close />, notes: ['Ask the question, pause, then walk through the three lines.', 'Transition into your separate in-class activity.'] },
 ]

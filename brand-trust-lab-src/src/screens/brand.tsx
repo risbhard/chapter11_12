@@ -10,11 +10,10 @@ type VK = keyof typeof venn
 
 /* 05 Identity, visibility, credibility */
 const Triad = () => {
-  const [sel, setSel] = useKeep<VK | null>('triad', 'sel', null)
+  const [sel, setSel] = useKeep<VK>('triad', 'sel', 'identity')
   const pos: Record<VK, [number, number, number, number]> = { identity: [250, 250, 150, 215], visibility: [500, 250, 600, 215], credibility: [375, 450, 375, 590] }
-  const cur = sel ? venn[sel] : null
   return (
-    <Slide title="A digital brand has three parts" lead="Click a circle. Then compare our two companies.">
+    <Slide title="A digital brand has three parts" lead="Click a circle to compare our two companies on that part.">
       <div className="mt-2 flex flex-1 items-center gap-16">
         <svg viewBox="0 0 750 700" className="h-[690px] w-[740px] flex-none">
           {(Object.keys(venn) as VK[]).map((k) => (
@@ -26,17 +25,22 @@ const Triad = () => {
           <text x="375" y="338" textAnchor="middle" className="type-display" fontSize="34" fill="#221F1B" pointerEvents="none">Digital</text>
           <text x="375" y="374" textAnchor="middle" className="type-display" fontSize="34" fill="#221F1B" pointerEvents="none">brand</text>
         </svg>
-        <div className="flex-1">
-          {!cur ? <p className="text-[34px] text-ink-mute">Pick a part to see what it means.</p> : (
-            <motion.div key={sel} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="type-display text-[64px]" style={{ color: C[sel!] }}>{cur.name}</div>
-              <p className="mt-3 text-[32px] leading-snug">{cur.what}</p>
-              <div className="mt-10 space-y-8 border-t-2 border-ink/70 pt-8">
-                <div><Tag tone="sage">Aura Audio</Tag><p className="mt-2 text-[32px] leading-snug">{cur.aura}</p></div>
-                <div><Tag tone="brick">Sound Dealz</Tag><p className="mt-2 text-[32px] leading-snug">{cur.dealz}</p></div>
+        <div className="flex-1 space-y-6">
+          {(Object.keys(venn) as VK[]).map((k) => {
+            const v = venn[k]; const on = sel === k
+            return (
+              <div key={k} className={`border-l-4 pl-6 transition-opacity ${on ? 'opacity-100' : 'opacity-60'}`} style={{ borderColor: C[k] }}>
+                <div className="type-display text-[46px] leading-none" style={{ color: C[k] }}>{v.name}</div>
+                <p className="mt-2 text-[27px] leading-snug">{v.what}</p>
+                {on && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2 text-[27px] leading-snug">
+                    <p><Tag tone="sage">Aura</Tag> <span className="ml-2">{v.aura}</span></p>
+                    <p><Tag tone="brick">Dealz</Tag> <span className="ml-2">{v.dealz}</span></p>
+                  </motion.div>
+                )}
               </div>
-            </motion.div>
-          )}
+            )
+          })}
         </div>
       </div>
     </Slide>
@@ -110,55 +114,42 @@ const Transform = () => {
 }
 
 /* 08 Story, design, content */
-const Building = () => {
-  const [feel, setFeel] = useKeep('building', 'feel', false)
-  return (
-    <Slide title="Story, design and content build the brand" lead="Aura Audio, one pillar at a time.">
-      <div className="mt-12 grid grid-cols-3 border-t-2 border-ink/70">
-        {pillars.map((x, k) => (
-          <div key={x.t} className={`pr-10 pt-8 ${k ? 'border-l border-ivory-line pl-10' : ''}`}>
-            <div className="type-display text-[84px] leading-none">{x.t}</div>
-            <p className="mt-4 text-[30px] leading-snug text-ink-soft">{x.d}</p>
-            <p className="type-display mt-8 text-[40px] italic leading-[1.1] text-copper-deep">{x.ex}</p>
-            <Reveal show={feel} className="mt-8"><Tag tone="copper">Feeling it creates</Tag><div className="mt-2 text-[44px] font-semibold">{x.feel}</div></Reveal>
-          </div>
-        ))}
-      </div>
-      <div className="mt-auto">{!feel ? <Btn tone="ghost" onClick={() => setFeel(true)}>Show the emotional goal</Btn> : <p className="text-[28px] text-ink-mute">Emotional branding connects the story, the design and the content to a feeling.</p>}</div>
-    </Slide>
-  )
-}
+const Building = () => (
+  <Slide title="Story, design and content build the brand" lead="Aura Audio, one pillar at a time. Each one aims at a feeling.">
+    <div className="mt-12 grid grid-cols-3 border-t-2 border-ink/70">
+      {pillars.map((x, k) => (
+        <div key={x.t} className={`pr-10 pt-8 ${k ? 'border-l border-ivory-line pl-10' : ''}`}>
+          <div className="type-display text-[84px] leading-none">{x.t}</div>
+          <p className="mt-4 text-[30px] leading-snug text-ink-soft">{x.d}</p>
+          <p className="type-display mt-8 text-[40px] italic leading-[1.1] text-copper-deep">{x.ex}</p>
+          <div className="mt-8"><Tag tone="copper">Feeling it creates</Tag><div className="mt-2 text-[44px] font-semibold">{x.feel}</div></div>
+        </div>
+      ))}
+    </div>
+  </Slide>
+)
 
 /* 09 What a digital brand is for */
-const Objectives = () => {
-  const [open, setOpen] = useKeep<number[]>('objectives', 'open', [])
-  const toggle = (k: number) => setOpen((o) => (o.includes(k) ? o.filter((x) => x !== k) : [...o, k]))
-  return (
-    <Slide title="What a digital brand is for" lead="Click each job to see the objectives behind it.">
-      <div className="mt-10 grid grid-cols-3 gap-12">
-        {objectives.map((g, k) => {
-          const on = open.includes(k)
-          return (
-            <div key={g.t}>
-              <button onClick={() => toggle(k)} className={`w-full border-t-4 pt-4 text-left transition-colors ${on ? 'border-copper' : 'border-ink/30 hover:border-ink'}`}>
-                <span className={`type-display text-[70px] leading-none ${on ? 'text-copper-deep' : ''}`}>{g.t}</span>
-              </button>
-              <Reveal show={on} className="mt-6 space-y-4 text-[31px] leading-snug">
-                {g.items.map((x) => <p key={x}>{x}</p>)}
-                {g.note && <p className="type-display pt-3 text-[34px] italic leading-[1.15] text-copper-deep">{g.note}</p>}
-              </Reveal>
-            </div>
-          )
-        })}
-      </div>
-    </Slide>
-  )
-}
+const Objectives = () => (
+  <Slide title="What a digital brand is for" lead="Seven objectives, three jobs.">
+    <div className="mt-10 grid grid-cols-3 gap-12">
+      {objectives.map((g) => (
+        <div key={g.t}>
+          <div className="border-t-4 border-copper pt-4"><span className="type-display text-[66px] leading-none text-copper-deep">{g.t}</span></div>
+          <div className="mt-6 space-y-4 text-[30px] leading-snug">
+            {g.items.map((x) => <p key={x}>{x}</p>)}
+            {g.note && <p className="type-display pt-3 text-[32px] italic leading-[1.15] text-copper-deep">{g.note}</p>}
+          </div>
+        </div>
+      ))}
+    </div>
+  </Slide>
+)
 
 export const brandScreens: Screen[] = [
   { id: 'triad', section: 'A. Understanding digital brands', title: 'Identity, visibility, credibility', render: () => <Triad />, resettable: true, notes: ['Publisher slide 4: the Digital Branding Institute defines a digital brand as the identity, visibility and credibility among consumers who discover, relate to and interact with a brand on digital platforms.', 'Click each circle and connect it back to Aura Audio and Sound Dealz.'] },
   { id: 'known', section: 'A. Understanding digital brands', title: 'Known is not trusted', render: () => <Known />, resettable: true, notes: ['A recognizable brand can still suffer from poor trust: visibility without credibility.', 'The bars are illustrative levels for discussion, not real data.', 'Define digital trust and reputation management from the bottom strip (publisher slide 5). Brands that lost trust have to work extremely hard to regain it.'] },
   { id: 'transform', section: 'B. Building a digital brand', title: 'One company, three positions', render: () => <Transform />, resettable: true, notes: ['Same company and same product. Positioning changes who it is for, the value proposition, the imagery, the language and the design.', 'Publisher slide 10: emotional, personal and sustainable digital branding are three positioning approaches. Ask: which would you believe from a $99 headphone brand? Sustainable claims need proof.'] },
-  { id: 'building', section: 'B. Building a digital brand', title: 'Story, design and content', render: () => <Building />, resettable: true, notes: ['Publisher slides 11 and 12: story through imagery, design and words; logo design conveys trendy, trustworthy, expert, cost effective or high end; digital vibe marketing creates brand emotion.', 'Reveal the emotional goal last.'] },
-  { id: 'objectives', section: 'B. Building a digital brand', title: 'What a digital brand is for', render: () => <Objectives />, resettable: true, notes: ['Publisher LO 10-2 objectives, grouped into three jobs: be known, stay in mind, last and stand apart.', 'Digital differentiation is consumers\u2019 perception of a superior difference in an organization\u2019s digital marketing.', 'Publisher slide 9 (Interbrand): many top global brands are technology brands, but Toyota, Coca-Cola, Mercedes-Benz, McDonald\u2019s and BMW rely heavily on digital marketing too.'] },
+  { id: 'building', section: 'B. Building a digital brand', title: 'Story, design and content', render: () => <Building />, notes: ['Publisher slides 11 and 12: story through imagery, design and words; logo design conveys trendy, trustworthy, expert, cost effective or high end; digital vibe marketing creates brand emotion.', 'Each pillar aims at a feeling: belonging, confidence, usefulness.'] },
+  { id: 'objectives', section: 'B. Building a digital brand', title: 'What a digital brand is for', render: () => <Objectives />, notes: ['Publisher LO 10-2 objectives, grouped into three jobs: be known, stay in mind, last and stand apart.', 'Digital differentiation is consumers\u2019 perception of a superior difference in an organization\u2019s digital marketing.', 'Publisher slide 9 (Interbrand): many top global brands are technology brands, but Toyota, Coca-Cola, Mercedes-Benz, McDonald\u2019s and BMW rely heavily on digital marketing too.'] },
 ]

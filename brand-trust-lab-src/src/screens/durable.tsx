@@ -5,33 +5,22 @@ import type { Screen } from '../lecture/types'
 import { Slide, Tag } from '../lecture/ui'
 
 /* 12 MACE */
-const Mace = () => {
-  const [i, setI] = useKeep<number | null>('mace', 'i', null)
-  const m = i === null ? null : mace[i]
-  return (
-    <Slide title="Why customers stay: MACE">
-      <div className="mt-8 grid grid-cols-4 gap-6">
-        {mace.map((x, k) => (
-          <button key={x.l} onClick={() => setI(k)} className={`border-t-4 pt-4 text-left transition-colors ${i === k ? 'border-copper' : 'border-ink/30 hover:border-ink'}`}>
-            <div className={`type-display text-[190px] leading-[0.85] ${i === k ? 'text-copper' : 'text-ink'}`}>{x.l}</div>
-            <div className="mt-3 text-[34px] font-semibold">{x.t}</div>
-          </button>
-        ))}
-      </div>
-      <div className="mt-8 min-h-[190px]">
-        {m ? (
-          <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid max-w-[1650px] grid-cols-2 gap-16">
-            <p className="text-[34px] leading-snug">{m.d}</p>
-            <div><Tag tone="copper">{m.ex}</Tag><p className="mt-2 text-[32px] leading-snug text-ink-soft">{m.exd}</p></div>
-          </motion.div>
-        ) : <p className="text-[32px] text-ink-mute">Choose a letter.</p>}
-      </div>
-      <div className="mt-auto grid grid-cols-3 gap-10 border-t-2 border-ink/70 pt-5">
-        {outcomes.map((o) => <div key={o.t}><div className="text-[28px] font-semibold text-copper-deep">{o.t}</div><div className="text-[25px] leading-snug text-ink-soft">{o.d}</div></div>)}
-      </div>
-    </Slide>
-  )
-}
+const Mace = () => (
+  <Slide title="Why customers stay: MACE">
+    <div className="mt-6 grid grid-cols-4 gap-8">
+      {mace.map((x) => (
+        <div key={x.l} className="border-t-4 border-copper pt-3">
+          <div className="flex items-baseline gap-4"><span className="type-display text-[120px] leading-[0.85] text-copper">{x.l}</span><span className="text-[32px] font-semibold">{x.t}</span></div>
+          <p className="mt-4 text-[26px] leading-snug">{x.d}</p>
+          <p className="type-display mt-4 text-[30px] italic leading-[1.12] text-copper-deep">{x.exd}</p>
+        </div>
+      ))}
+    </div>
+    <div className="mt-auto grid grid-cols-3 gap-10 border-t-2 border-ink/70 pt-5">
+      {outcomes.map((o) => <div key={o.t}><div className="text-[28px] font-semibold text-copper-deep">{o.t}</div><div className="text-[25px] leading-snug text-ink-soft">{o.d}</div></div>)}
+    </div>
+  </Slide>
+)
 
 /* 13 BlackBerry */
 const BlackBerry = () => {
@@ -58,6 +47,6 @@ const BlackBerry = () => {
 }
 
 export const durableScreens: Screen[] = [
-  { id: 'mace', section: 'D. Long-term relationships', title: 'MACE', render: () => <Mace />, resettable: true, notes: ['Mastery, Accessibility, Cadence, Ensnarement: the four ways a brand earns a repeat relationship.', 'Framework by David and William Collis (HBR, 2020): four factors that prolong digital brand life. The Aura Audio examples are illustrative.', 'The strip at the bottom: connectedness, engagement and digital durability (publisher slides 7 and 15).'] },
+  { id: 'mace', section: 'D. Long-term relationships', title: 'MACE', render: () => <Mace />, notes: ['Mastery, Accessibility, Cadence, Ensnarement: the four ways a brand earns a repeat relationship.', 'Framework by David and William Collis (HBR, 2020): four factors that prolong digital brand life. The Aura Audio examples are illustrative.', 'The strip at the bottom: connectedness, engagement and digital durability (publisher slides 7 and 15).'] },
   { id: 'blackberry', section: 'D. Long-term relationships', title: 'BlackBerry rebranding', render: () => <BlackBerry />, resettable: true, notes: ['Publisher slides 16 and 17: rebranded from RIM, once popular for smartphones among the business community, now an intelligent security provider (enterprise cybersecurity, critical-event management, AI cybersecurity). Its BlackBerry Today page also highlights sustainability.', 'The 2013 date is from general knowledge, not the slides.', 'Point: positioning can evolve while the brand keeps the trust it earned.'] },
 ]

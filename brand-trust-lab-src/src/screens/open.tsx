@@ -69,7 +69,7 @@ const HookSignals = () => {
     <Slide>
       <div className="flex items-baseline justify-between">
         <h1 className="type-display text-[60px]">What are you noticing?</h1>
-        <div className="flex items-center gap-6"><span className="text-[26px] text-ink-mute tabular">{seen.length} of 14 signals opened</span><Btn tone="ghost" onClick={() => setIdea(true)}>The key idea</Btn></div>
+        <div className="flex items-center gap-6"><span className="text-[26px] text-ink-mute tabular">{seen.length} of 10 signals opened</span>{seen.length < 10 && <Btn tone="ghost" onClick={() => { setSeen([...auraSignals.map((x) => `a:${x.id}`), ...dealzSignals.map((x) => `b:${x.id}`)]); setActive(null) }}>Show all</Btn>}<Btn tone="ghost" onClick={() => setIdea(true)}>The key idea</Btn></div>
       </div>
       <div className="mt-6 grid grid-cols-2 gap-[48px]">
         <div className="relative"><div className="absolute -top-4 left-5 z-10"><span className="rounded-sm bg-ink px-4 py-1 text-[22px] font-semibold text-ivory">Website A</span></div><HotProvider value={mk('a')}><AuraSite /></HotProvider></div>
@@ -84,7 +84,7 @@ const HookSignals = () => {
             <div><div className="text-[34px] font-semibold leading-tight">{cur.s.title}</div><div className="text-[28px] leading-snug text-ink-soft">{cur.s.why}</div></div>
           </>
         ) : (
-          <p className="text-[30px] text-ink-mute">Click a + on either site to see the signal behind it.</p>
+          <p className="text-[30px] text-ink-mute">Click a + on either site to see the signal behind it, or Show all.</p>
         )}
       </div>
     </Slide>
