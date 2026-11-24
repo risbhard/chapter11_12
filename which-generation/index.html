@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which generation are you?</title>
+<meta name="description" content="Enter your birth year and see which generation you belong to, with research-backed profiles for work, technology, spending and communication.">
+<meta name="theme-color" content="#050505">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Cinzel:wght@400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font-family:Archivo,system-ui,sans-serif;min-height:100vh}
+[hidden]{display:none!important}
+
+/* ---------- themes ---------- */
+.dk{--bg:#050505;--ink:#F2D675;--accent:#F2D675;--onaccent:#050505;--muted:#8a7a47;--line:#3a2d0e;--pill:#0d0a04;--text:#E8DDB5;--sub:#A39770;--rule:#7A5C1E;--track2:#1D1708;--mark:#E8CC6A;--rimlow:#7A5C1E;--rimtop:#C9A23A;
+--band:linear-gradient(90deg,#030201 0%,#0A0702 12%,#17110A 32%,#1F170A 50%,#17110A 68%,#0A0702 88%,#030201 100%);
+--aover:linear-gradient(180deg,rgba(0,0,0,0) 0%,rgba(0,0,0,0) 54%,rgba(255,226,150,.10) 62%,rgba(0,0,0,.30) 100%);
+--ashadow:inset 0 -2px 1px rgba(255,230,150,.55),inset 0 -10px 12px -4px rgba(0,0,0,.8),inset 0 -34px 30px -14px rgba(0,0,0,.5),0 7px 12px rgba(0,0,0,.95);
+--bshadow:inset 0 -3px 2px rgba(255,240,170,.7),inset 0 -9px 10px -4px rgba(255,225,140,.25),0 3px 0 rgba(0,0,0,.55),0 12px 14px -2px rgba(0,0,0,.9);
+--focusbg:rgba(0,0,0,.38);--focusshadow:0 0 18px rgba(242,214,117,.3),inset 0 0 12px rgba(232,204,106,.18);
+--fillbar:linear-gradient(90deg,#8A6A14,#FFF3B0)}
+.lt{--bg:#F0EEE6;--ink:#141413;--accent:#D97757;--onaccent:#FAF9F5;--muted:#87867F;--line:#D1CFC5;--pill:#FAF9F5;--text:#141413;--sub:#54544F;--rule:#141413;--track2:#E3E1D9;--mark:#141413;--rimlow:#A8A38C;--rimtop:#D4D0BE;
+--band:linear-gradient(90deg,#F0EEE6 0%,#E9E6D9 12%,#DFDBCA 32%,#D6D2BF 50%,#DFDBCA 68%,#E9E6D9 88%,#F0EEE6 100%);
+--aover:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0) 54%,rgba(255,255,255,.35) 62%,rgba(120,110,80,.18) 100%);
+--ashadow:inset 0 -2px 1px rgba(255,255,255,.85),inset 0 -10px 12px -4px rgba(120,110,80,.35),0 7px 12px rgba(120,110,80,.35);
+--bshadow:inset 0 -3px 2px rgba(255,255,255,.95),0 3px 0 rgba(120,110,80,.22),0 12px 14px -2px rgba(120,110,80,.4);
+--focusbg:rgba(250,249,245,.7);--focusshadow:0 0 0 4px rgba(217,119,87,.14);
+--fillbar:linear-gradient(90deg,#C15F3C,#D97757)}
+
+/* ---------- gold text ---------- */
+.gold{background:linear-gradient(100deg,#8A6A14 0%,#F7E48B 22%,#C99A2E 40%,#FFF6C8 52%,#C99A2E 64%,#F2D675 80%,#8A6A14 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.goldbg{background:linear-gradient(180deg,#FFF6C8 0%,#D4AF37 50%,#8A6A14 100%)}
+.lt .gold{background:none;color:var(--ink);-webkit-text-fill-color:var(--ink)}
+.lt .goldbg{background:var(--ink)}
+.sheen{background-size:220% 100%;animation:sheen 7s linear infinite}
+.lt .sheen{animation:none}
+@keyframes sheen{0%{background-position:0% 50%}100%{background-position:220% 50%}}
+@keyframes nudgeL{0%,100%{transform:translateX(0);opacity:.35}50%{transform:translateX(-10px);opacity:1}}
+@keyframes nudgeR{0%,100%{transform:translateX(0);opacity:.35}50%{transform:translateX(10px);opacity:1}}
+@keyframes fill{0%{width:0}100%{width:100%}}
+@media (prefers-reduced-motion: reduce){.sheen,.nl,.nr{animation:none!important}}
+
+/* ---------- toggle ---------- */
+.toggle{display:flex;align-items:center;padding:3px;border-radius:999px;border:1px solid var(--line);background:var(--pill);cursor:pointer;font-size:16px;line-height:1;color:inherit;font-family:inherit}
+.toggle span{width:36px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:999px;color:var(--muted)}
+.dk .toggle .moon,.lt .toggle .sun{background:var(--accent);color:var(--onaccent)}
+.toggle:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* ---------- landing ---------- */
+#land{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#land .toggle{position:absolute;top:22px;right:26px;z-index:5}
+.q{margin:0;padding:9vh 24px 0;text-align:center;font-family:Cinzel,serif;font-weight:400;font-size:clamp(30px,5.4vw,72px);line-height:1.1;letter-spacing:.02em}
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:6vh}
+#dial{position:relative;width:100%;height:236px;overflow:hidden;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;outline:none}
+#dial:active{cursor:grabbing}
+#dial:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+#dial .abs{position:absolute;left:50%;pointer-events:none}
+.ringA{top:30px;width:480px;height:140px;margin-left:-240px;border-radius:50%;border:5px solid var(--rimlow);background:var(--aover),var(--band);box-shadow:var(--ashadow)}
+.ringF{top:24px;width:480px;height:76px;margin-left:-240px;border-left:5px solid var(--rimlow);border-right:5px solid var(--rimlow);background:var(--band)}
+.ringB{top:-46px;width:480px;height:140px;margin-left:-240px;border-radius:50%;border:5px solid var(--rimtop);background:var(--bg);box-shadow:var(--bshadow)}
+.mk{position:absolute;left:50%;top:0;background:var(--mark);pointer-events:none;transform-origin:50% 100%}
+.it{position:absolute;left:50%;top:0;width:44px;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;pointer-events:none;transform-origin:50% 100%}
+.lab{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:13px;line-height:13px;white-space:nowrap;transform-origin:50% 100%}
+#dial .it,#dial .mk{transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
+#dial .lab{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+#dial.drag .it,#dial.drag .mk,#dial.drag .lab{transition:none}
+.focusbox{top:94px;width:172px;height:76px;margin-left:-86px;border:2px solid var(--accent);border-radius:3px;background:var(--focusbg);box-shadow:var(--focusshadow)}
+.arrow{top:54px;margin-left:-22px;width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-top:40px solid var(--accent)}
+.hint{position:absolute;left:0;right:0;top:196px;display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+.hintrow{display:flex;align-items:center;gap:18px;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.22em;text-transform:uppercase;padding:0 16px;text-align:center}
+.chev{font-size:26px;line-height:1}
+.nl{animation:nudgeL 1.6s ease-in-out infinite}
+.nr{animation:nudgeR 1.6s ease-in-out infinite}
+.bar{width:200px;height:3px;background:var(--track2)}
+.bar i{display:block;height:3px;width:0;background:var(--fillbar);animation:fill 3s linear forwards}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- results ---------- */
+.rwrap{max-width:1120px;margin:0 auto;padding:0 24px 64px}
+.rhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:20px 0;border-bottom:1px solid var(--rule)}
+.rhead .brand{font-family:Cinzel,serif;font-size:18px;letter-spacing:.12em;text-transform:uppercase}
+.rtools{display:flex;align-items:center;gap:14px}
+.backbtn{min-height:44px;padding:0 18px;background:transparent;color:var(--accent);border:1px solid var(--accent);font:500 13px 'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.backbtn:hover{background:var(--accent);color:var(--onaccent)}
+.mono{font-family:'IBM Plex Mono',monospace}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.hero{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:24px 48px;padding:48px 0 40px}
+.hero .l{min-width:0;display:flex;flex-direction:column;gap:12px}
+.genname{font-family:Cinzel,serif;font-weight:400;font-size:clamp(40px,8.5vw,108px);line-height:1.05;letter-spacing:.02em}
+.hero .tag{font-size:20px;font-weight:500;color:var(--sub)}
+.born{display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--rule);padding-left:20px}
+.born .yr{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:64px;line-height:1;color:var(--accent)}
+.sec{border-top:1px solid var(--rule);padding:28px 0 32px;display:flex;flex-wrap:wrap;gap:28px 40px}
+.sec .c1{flex:0 0 220px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.sec .num{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500;color:var(--accent)}
+.sec h2{margin:0;font-family:Cinzel,serif;font-weight:400;font-size:24px;line-height:1.15;letter-spacing:.03em}
+.sec .c2{flex:0 0 170px;display:flex;flex-direction:column;gap:10px}
+.donut{width:132px;height:132px;border-radius:50%;position:relative}
+.donut .in{position:absolute;inset:16px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:28px}
+.sec .cap{font-size:14px;line-height:1.35;font-weight:500}
+.sec .c3{flex:1 1 300px;min-width:0}
+.charttitle{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.04em;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.row .lbl{flex:0 0 92px;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.row .trk{flex:1;min-width:0;height:22px;background:var(--track2)}
+.row .trk div{height:100%}
+.row .val{flex:0 0 52px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:13px}
+.src{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--sub);margin-top:4px}
+.sec .c4{flex:1 1 250px;display:flex;flex-direction:column;gap:16px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags div{padding:6px 10px;border:1px solid var(--rule);font-size:14px;font-weight:600;line-height:1.2}
+.take{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01em}
+.other{padding:80px 0;display:flex;flex-direction:column;gap:20px;max-width:720px}
+.other p{margin:0;font-size:20px;line-height:1.4}
+footer.refs{border-top:1px solid var(--rule);margin-top:8px;padding-top:40px;display:flex;flex-direction:column;gap:44px}
+.frow{display:flex;flex-wrap:wrap;gap:24px 48px}
+.frow h2{flex:0 0 170px;margin:0;font-family:Cinzel,serif;font-weight:400;font-size:26px;line-height:1.15;letter-spacing:.04em}
+.notes{flex:1 1 520px;display:flex;flex-wrap:wrap;gap:24px 36px}
+.note{flex:1 1 200px;display:flex;flex-direction:column;gap:8px}
+.note .n{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)}
+.note .h{font-weight:700;font-size:16px;line-height:1.25}
+.note .b{font-size:14px;line-height:1.5;color:var(--sub)}
+.refgroups{flex:1 1 520px;display:flex;flex-wrap:wrap;gap:32px 36px}
+.rg{flex:1 1 280px;min-width:0;display:flex;flex-direction:column;border-top:1px solid var(--rule)}
+.rg .t{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);padding:12px 0 6px}
+.ref{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--text)}
+.ref .nm{display:block;font-weight:700;font-size:15px;line-height:1.25}
+.ref .nt{display:block;font-size:13px;line-height:1.4;color:var(--sub);margin-top:3px}
+.ref .ar{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--accent);flex:0 0 auto}
+.ref:hover .nm{text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+.ref:focus-visible,.backbtn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body class="dk">
+
+<!-- ================= PAGE 1: landing ================= -->
+<main id="land">
+  <button type="button" class="toggle" data-toggle aria-label="Switch to day mode"><span class="moon">&#9790;&#xFE0E;</span><span class="sun">&#9728;&#xFE0E;</span></button>
+  <h1 class="q gold sheen">What year were you born?</h1>
+  <div class="stage">
+    <div id="dial" tabindex="0" role="slider" aria-label="Birth year" aria-valuemin="1928" aria-valuemax="2026" aria-valuenow="1990">
+      <div class="abs ringA"></div>
+      <div class="abs ringF"></div>
+      <div class="abs ringB"></div>
+      <div id="marks" aria-hidden="true"></div>
+      <div class="abs focusbox"></div>
+      <div id="items" aria-hidden="true"></div>
+      <div class="abs arrow"></div>
+      <div class="hint" aria-hidden="true">
+        <div class="hintrow"><span class="chev nl gold" id="chevL">&#8249;&#8249;</span><span class="gold" id="hintText"></span><span class="chev nr gold" id="chevR">&#8250;&#8250;</span></div>
+        <div class="bar" id="bar" hidden></div>
+      </div>
+    </div>
+  </div>
+  <div class="sr" aria-live="polite" id="live"></div>
+</main>
+
+<!-- ================= PAGE 2: results ================= -->
+<div id="result" hidden></div>
+
+<script>
+(function () {
+"use strict";
+
+/* =============================== data =============================== */
+var S = function (pct, cap, tags, take) { return { pct: pct, cap: cap, tags: tags, take: take }; };
+var GENS = [
+{ id: "boom", name: "Baby Boomer", short: "Boomers", start: 1946, end: 1964, color: "#B8430E", dark: "#EE7B45", tag: "Post-war boom babies",
+  work: S(34, "say culture means how people treat each other. Highest of any generation.", ["Goal-oriented", "Strong work ethic", "Respect first"], "Judge a workplace by how people treat each other."),
+  tech: S(38, "have used AI-automated chat. Gen Z: 78%.", ["Learned tech as adults", "Video-call converts", "Ease of use wins"], "Adopts new tools when they are simple and human."),
+  spend: S(20, "likely to splurge. Lowest of any generation.", ["Budget first", "TV, search, stores", "Only 5% prefer cash"], "Plan, compare, then buy."),
+  comm: S(64, "prefer email.", ["Phone and face to face", "More formal tone", "Wants a human touch"], "A call or an email beats a DM.") },
+{ id: "genx", name: "Gen X", short: "Gen X", start: 1965, end: 1980, color: "#1F6B4A", dark: "#4CC38A", tag: "The bridge generation",
+  work: S(32, "say culture means how people treat each other.", ["Often self-reliant", "Straightforward", "Mid-to-senior leaders"], "Direct communication, minimal hand-holding."),
+  tech: S(90, "use social media. Facebook, YouTube, Instagram lead.", ["Analog to digital", "Facebook + YouTube", "Video if it adds value"], "Bridges the analog and digital worlds."),
+  spend: S(35, "likely to splurge.", ["Big-ticket buyers", "Search, social, stores", "Bill negotiators"], "Spends big, but on purpose."),
+  comm: S(58, "prefer email.", ["Email by default", "Video when personal", "Direct and relevant"], "Straight to the point, in an inbox.") },
+{ id: "mill", name: "Millennial", short: "Millennials", start: 1981, end: 1996, color: "#1F3FD1", dark: "#7B96FF", tag: "First to grow up online",
+  work: S(26, "say culture means how people treat each other.", ["Meaning and growth", "Values-aligned (47%)", "Pay is not everything"], "Wants purpose and a path, not just a paycheque."),
+  tech: S(43, "bought in an in-app shop in the last 3 months.", ["Facebook, YouTube, TikTok", "Influencer-led (36%)", "4+ hrs/day on social"], "Shops where they scroll."),
+  spend: S(50, "likely to splurge. About half of millennials.", ["Treat-yourself spenders", "Apparel and services", "Side-income coping"], "Splurges when it feels worth it."),
+  comm: S(40, "prefer email.", ["Email or text over calls", "Chat apps with brands", "Humour welcome"], "Message me. Do not call.") },
+{ id: "genz", name: "Gen Z", short: "Gen Z", start: 1997, end: 2012, color: "#D1105A", dark: "#FF5A94", tag: "Digital natives at work",
+  work: S(28, "say culture means how people treat each other.", ["Flexibility first", "Values-aligned (48%)", "Growth keeps them"], "Stays for flexibility, growth and purpose."),
+  tech: S(97, "use smartphones.", ["Instagram, YouTube, TikTok", "78% have used AI chat", "4+ hrs/day on social"], "Phone-first for everything."),
+  spend: S(15, "prefer cash. Highest of any generation, still a minority.", ["Shops often, spends less", "56% below millennials", "Brand stances matter"], "Small baskets, frequent trips, values-checked."),
+  comm: S(29, "prefer email.", ["Text and voice notes", "41% avoid calls", "Video-friendly"], "A voice note beats a phone call.") },
+{ id: "alpha", name: "Gen Alpha", short: "Gen Alpha", start: 2013, end: 2024, color: "#8A6400", dark: "#E8CC6A", tag: "Born into touchscreens",
+  work: S(null, "No workplace data. Oldest are about 13.", ["Oldest are ~13", "Working by the 2030s", "Forecasts, not findings"], "Too young for workplace research."),
+  tech: S(null, "No reliable usage data yet.", ["Born with touchscreens", "Grew up beside AI", "Seen through parents"], "Native to screens. Data is thin."),
+  spend: S(null, "No independent spending data.", ["Influence, not income", "Data is about families", "Wait for real data"], "Spending shows up through parents."),
+  comm: S(null, "No survey data yet.", ["Texting, voice notes", "Visual, short-form", "Habits still forming"], "Likely close to Gen Z. Still forming.") }
+];
+var CH = [
+{ k: "work", num: "01", title: "At work", t: "SAY CULTURE = HOW PEOPLE TREAT EACH OTHER", src: "EY 2025", v: [34, 32, 26, 28] },
+{ k: "tech", num: "02", title: "Technology", t: "HAVE USED AI-AUTOMATED CHAT", src: "Talkdesk via CX Today", v: [38, null, null, 78] },
+{ k: "spend", num: "03", title: "Spending", t: "LIKELY TO SPLURGE", src: "McKinsey ConsumerWise", v: [20, 35, 50, null], d: [null, null, "~50%", null] },
+{ k: "comm", num: "04", title: "Communication", t: "PREFER EMAIL", src: "Idomoo 2022", v: [64, 58, 40, 29] }
+];
+var LBL = ["Boomers", "Gen X", "Millennials", "Gen Z"];
+var IDS = ["boom", "genx", "mill", "genz"];
+var NOTES = [
+{ num: "01", head: "Tendencies, not rules", body: "These are group averages, and individuals vary. McKinsey finds work preferences differ less by age than stereotypes suggest." },
+{ num: "02", head: "Where the years come from", body: "Cut-off years follow Pew Research Center. Gen Alpha dates vary by publisher." },
+{ num: "03", head: "Surveys differ", body: "Each source has its own sample, year and country. n/r means the figure was not reported in the source." }
+];
+var REFS = [
+{ title: "Generation dates", items: [{ name: "Pew Research Center", note: "Where Millennials end and Generation Z begins", url: "https://www.pewresearch.org/short-reads/2019/01/17/where-millennials-end-and-generation-z-begins/" }] },
+{ title: "Work", items: [
+ { name: "EY", note: "2025 Generation Survey", url: "https://www.ey.com/en_us/about-us/generation-survey" },
+ { name: "McKinsey", note: "Debunking age-based myths about worker preferences", url: "https://www.mckinsey.com/capabilities/people-and-organizational-performance/our-insights/gen-what-debunking-age-based-myths-about-worker-preferences" }] },
+{ title: "Technology", items: [{ name: "CX Today", note: "Customer communication preferences across generations (Talkdesk data)", url: "https://www.cxtoday.com/contact-center/how-do-customer-communication-preferences-change-across-generations-streem/" }] },
+{ title: "Spending", items: [
+ { name: "McKinsey ConsumerWise", note: "Boomers budget, millennials splurge", url: "https://www.mckinsey.com/featured-insights/charts/boomers-budget-millennials-splurge" },
+ { name: "HubSpot", note: "How each generation shops differently", url: "https://blog.hubspot.com/marketing/how-each-generation-shops-differently" },
+ { name: "Capital One via Nasdaq", note: "Who is spending more, and where", url: "https://www.nasdaq.com/articles/millennials-gen-z-gen-x-whos-spending-more-where" }] },
+{ title: "Communication", items: [
+ { name: "Idomoo via MediaPost", note: "Gen Z wants video and personalization", url: "https://www.mediapost.com/publications/article/375590/gen-z-wants-video-and-personalization-but-is-less.html" },
+ { name: "Infobip", note: "Generational messaging trends", url: "https://infobip.com/generational-messaging-trends" },
+ { name: "Dynata survey via Journalism.co.uk", note: "How generations will talk to each other in 2025", url: "https://www.journalism.co.uk/press-releases/communication-expert-launches-survey-to-show-how-different-generations-will-talk-to-each-other-in-2025/" }] }
+];
+
+/* =============================== state =============================== */
+var MIN = 1928, MAX = 2026;
+var RX = 240, RY = 70, YB = 170, STEP = 11, G = 17, RAD = Math.PI / 180, DWELL = 3000;
+var st = { pos: 1990, drag: false, view: "land", touched: false, settling: false, theme: "dark", year: "" };
+var arm = false, dt = null, d0 = null, wt = null, lastSnd = 0, ac = null, dragState = null;
+
+var $ = function (id) { return document.getElementById(id); };
+var body = document.body, land = $("land"), result = $("result"), dial = $("dial");
+
+/* =============================== theme =============================== */
+function applyTheme() {
+  body.className = st.theme === "light" ? "lt" : "dk";
+  var m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute("content", st.theme === "light" ? "#F0EEE6" : "#050505");
+  var lab = st.theme === "light" ? "Switch to night mode" : "Switch to day mode";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-toggle]"), function (b) { b.setAttribute("aria-label", lab); });
+}
+function toggleTheme() {
+  st.theme = st.theme === "light" ? "dark" : "light";
+  try { localStorage.setItem("gen-theme", st.theme); } catch (e) {}
+  applyTheme();
+  if (st.view === "result") renderResult(st.year);
+}
+try { var saved = localStorage.getItem("gen-theme"); if (saved === "light" || saved === "dark") st.theme = saved; } catch (e) {}
+
+/* =============================== audio =============================== */
+function initAudio() {
+  try {
+    if (!ac) { var C = window.AudioContext || window.webkitAudioContext; if (!C) return; ac = new C(); }
+    if (ac.state === "suspended") ac.resume();
+  } catch (e) {}
+}
+function sound(heavy) {
+  try {
+    if (!ac) return;
+    var t = ac.currentTime, len = Math.floor(ac.sampleRate * 0.04);
+    var buf = ac.createBuffer(1, len, ac.sampleRate), ch = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    var src = ac.createBufferSource(); src.buffer = buf;
+    var bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = heavy ? 900 : 2400; bp.Q.value = 1.2;
+    var g = ac.createGain(); g.gain.value = heavy ? 0.9 : 0.55;
+    src.connect(bp); bp.connect(g); g.connect(ac.destination); src.start(t);
+    var o = ac.createOscillator(), og = ac.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(heavy ? 90 : 220, t);
+    o.frequency.exponentialRampToValueAtTime(heavy ? 45 : 110, t + 0.06);
+    og.gain.setValueAtTime(heavy ? 0.5 : 0.18, t);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + (heavy ? 0.25 : 0.07));
+    o.connect(og); og.connect(ac.destination); o.start(t); o.stop(t + (heavy ? 0.26 : 0.08));
+  } catch (e) {}
+}
+
+/* =============================== dial build =============================== */
+var itemsEl = $("items"), marksEl = $("marks");
+var items = [], marks = [];
+(function build() {
+  var y, el, f;
+  for (y = MIN; y <= MAX; y++) {
+    var dec = y % 10 === 0, five = y % 5 === 0;
+    var th = dec ? 30 : five ? 22 : 14, tw = dec ? 3 : 2;
+    el = document.createElement("div");
+    el.className = "it";
+    el.innerHTML = '<div class="gold lab" style="margin-bottom:' + (35 - th) + 'px">' + y + '</div><div class="goldbg" style="width:' + tw + 'px;height:' + th + 'px"></div>';
+    itemsEl.appendChild(el);
+    items.push({ y: y, el: el, lab: el.firstChild, tick: el.lastChild });
+  }
+  for (var q = MIN * 4 - 3; q <= MAX * 4 + 3; q++) {
+    if (q % 4 === 0) continue;
+    var half = q % 4 === 2, h = half ? 9 : 5;
+    el = document.createElement("div");
+    el.className = "mk";
+    el.style.width = (half ? 2 : 1) + "px";
+    el.style.height = h + "px";
+    marksEl.appendChild(el);
+    marks.push({ q: q, h: h, half: half, el: el });
+  }
+})();
+
+function clamp(v) { return Math.max(MIN, Math.min(MAX, v)); }
+function smooth(t) { return t >= 1 ? 1 : t * t * (3 - 2 * t); }
+function deg(d) { return STEP * d + (d < 0 ? -1 : 1) * G * smooth(Math.abs(d)); }
+function geo(d) {
+  var dg = Math.max(-88, Math.min(88, deg(d)));
+  var phi = dg * RAD, c = Math.cos(phi);
+  return { x: RX * Math.sin(phi), c: c, arcY: YB - RY * (1 - c), tilt: -Math.atan((RY / RX) * Math.tan(phi)) / RAD };
+}
+
+var hintText = $("hintText"), chevL = $("chevL"), chevR = $("chevR"), barEl = $("bar"), live = $("live");
+function render() {
+  var pos = st.pos, i, it, d, ad, g, depth, o;
+  dial.classList.toggle("drag", st.drag);
+  for (i = 0; i < items.length; i++) {
+    it = items[i];
+    d = it.y - pos; ad = Math.abs(d);
+    if (ad > 9) { it.el.style.display = "none"; continue; }
+    g = geo(d);
+    if (g.c < 0.08) { it.el.style.display = "none"; continue; }
+    depth = 0.9 + 0.1 * g.c;
+    o = (ad < 0.3 ? 1 : Math.max(0.3, 1 - (ad - 0.3) * 0.5)) * (0.45 + 0.55 * g.c);
+    it.el.style.display = "flex";
+    it.el.style.transform = "translate(" + (g.x - 22).toFixed(1) + "px," + (g.arcY - 70).toFixed(1) + "px) rotate(" + g.tilt.toFixed(2) + "deg) scale(" + (depth * Math.max(0.04, g.c)).toFixed(3) + "," + depth.toFixed(3) + ")";
+    it.el.style.opacity = o.toFixed(3);
+    it.lab.style.transform = "translateY(" + (24 * Math.max(0, 1 - ad)).toFixed(1) + "px) scale(" + (1 + 3.2 * Math.max(0, 1 - ad)).toFixed(3) + ")";
+    it.tick.style.opacity = Math.min(1, ad * 2.2).toFixed(2);
+  }
+  for (i = 0; i < marks.length; i++) {
+    var m = marks[i];
+    d = m.q / 4 - pos;
+    if (Math.abs(d) > 9) { m.el.style.display = "none"; continue; }
+    g = geo(d);
+    if (g.c < 0.08) { m.el.style.display = "none"; continue; }
+    m.el.style.display = "block";
+    m.el.style.transform = "translate(" + (g.x - (m.half ? 1 : 0.5)).toFixed(1) + "px," + (g.arcY - m.h).toFixed(1) + "px) rotate(" + g.tilt.toFixed(2) + "deg)";
+    m.el.style.opacity = (0.6 * Math.max(0.4, 1 - Math.abs(d) / 3) * (0.45 + 0.55 * g.c)).toFixed(3);
+  }
+  var cur = Math.round(pos);
+  var txt = st.settling ? "Locking in " + cur + " — turn to change" : (st.touched ? "Stop on your birth year" : "Drag, scroll or use ← → to turn the dial");
+  if (hintText.textContent !== txt) hintText.textContent = txt;
+  chevL.style.display = chevR.style.display = st.touched ? "none" : "inline";
+  dial.setAttribute("aria-valuenow", cur);
+  dial.setAttribute("aria-valuetext", "Year " + cur);
+}
+
+function setPos(p, drag) {
+  var prev = Math.round(st.pos), next = Math.round(p);
+  if (next !== prev) {
+    var now = Date.now();
+    if (now - lastSnd > 28) { lastSnd = now; sound(false); }
+  }
+  st.pos = p; st.drag = drag;
+  render();
+}
+
+/* =============================== dwell (auto-continue) =============================== */
+function setSettling(on) {
+  st.settling = on;
+  if (on) { barEl.hidden = false; barEl.innerHTML = "<i></i>"; live.textContent = "Locking in " + Math.round(st.pos); }
+  else { barEl.hidden = true; barEl.innerHTML = ""; }
+}
+function cancelDwell() {
+  if (dt) clearTimeout(dt);
+  if (d0) clearTimeout(d0);
+  dt = d0 = null;
+  st.touched = true;
+  setSettling(false);
+}
+function armDwell() {
+  cancelDwell();
+  d0 = setTimeout(function () {
+    d0 = null;
+    setSettling(true);
+    render();
+    dt = setTimeout(function () { dt = null; finish(); }, DWELL);
+  }, 140);
+  render();
+}
+function finish() {
+  if (dt) clearTimeout(dt);
+  if (d0) clearTimeout(d0);
+  dt = d0 = null;
+  setSettling(false);
+  sound(true);
+  var y = Math.round(st.pos);
+  try { history.replaceState(null, "", "#" + y); } catch (e) {}
+  showResult(y);
+}
+
+/* =============================== input =============================== */
+dial.addEventListener("pointerdown", function (e) {
+  initAudio();
+  cancelDwell();
+  dragState = { x: e.clientX, pos: st.pos, moved: false };
+  render();
+});
+dial.addEventListener("pointermove", function (e) {
+  var d = dragState;
+  if (!d) return;
+  var dx = e.clientX - d.x;
+  if (!d.moved && Math.abs(dx) > 6) {
+    d.moved = true;
+    try { dial.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+  if (d.moved) { arm = true; setPos(clamp(d.pos - dx / 44), true); }
+});
+function pointerEnd(e) {
+  var d = dragState;
+  dragState = null;
+  if (!d) return;
+  if (d.moved) {
+    setPos(Math.round(st.pos), false);
+    armDwell();
+  } else {
+    var r = dial.getBoundingClientRect();
+    var off = e.clientX - (r.left + r.width / 2);
+    if (Math.abs(off) < 90) { if (arm) armDwell(); return; }
+    var dg = Math.asin(Math.max(-0.999, Math.min(0.999, Math.abs(off) / RX))) / RAD;
+    var steps = Math.max(1, (dg - G) / STEP);
+    arm = true;
+    setPos(clamp(Math.round(st.pos + (off < 0 ? -1 : 1) * steps)), false);
+    armDwell();
+  }
+}
+dial.addEventListener("pointerup", pointerEnd);
+dial.addEventListener("pointercancel", pointerEnd);
+dial.addEventListener("wheel", function (e) {
+  e.preventDefault();
+  initAudio();
+  arm = true;
+  cancelDwell();
+  var dl = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  setPos(clamp(st.pos + dl / 60), true);
+  if (wt) clearTimeout(wt);
+  wt = setTimeout(function () { setPos(Math.round(st.pos), false); armDwell(); }, 140);
+}, { passive: false });
+
+window.addEventListener("keydown", function (e) {
+  if (st.view !== "land") return;
+  var k = e.key, p = Math.round(st.pos), n = null;
+  if ((k === "Enter" || k === " ") && e.target && e.target.closest && e.target.closest("[data-toggle]")) return;
+  if (k === "Enter" || k === " ") { if (arm) { e.preventDefault(); finish(); } return; }
+  if (k === "ArrowLeft" || k === "ArrowDown") n = p - 1;
+  else if (k === "ArrowRight" || k === "ArrowUp") n = p + 1;
+  else if (k === "PageDown") n = p - 10;
+  else if (k === "PageUp") n = p + 10;
+  else if (k === "Home") n = MIN;
+  else if (k === "End") n = MAX;
+  if (n === null) return;
+  e.preventDefault();
+  initAudio();
+  arm = true;
+  cancelDwell();
+  setPos(clamp(n), false);
+  armDwell();
+});
+
+document.addEventListener("click", function (e) {
+  var t = e.target.closest ? e.target.closest("[data-toggle],[data-back]") : null;
+  if (!t) return;
+  if (t.hasAttribute("data-toggle")) toggleTheme();
+  else goBack();
+});
+
+/* =============================== results =============================== */
+var TOGGLE = '<button type="button" class="toggle" data-toggle aria-label="Switch theme"><span class="moon">&#9790;&#xFE0E;</span><span class="sun">&#9728;&#xFE0E;</span></button>';
+
+function resultHTML(ys) {
+  var light = st.theme === "light";
+  var y = parseInt(ys, 10);
+  var gen = null, other = null;
+  if (y <= 1945) other = { name: "Silent Generation", note: "Born 1928-1945. Profiles here cover Baby Boomers through Gen Alpha, the five generations most often compared today." };
+  else if (y >= 2025) other = { name: "Gen Beta", note: "Born 2025 onward. A newly proposed label with no behavioural research yet, so no profile is shown." };
+  else gen = GENS.filter(function (g) { return y >= g.start && y <= g.end; })[0];
+  var h = '<div class="rwrap"><div class="rhead"><div class="brand gold">Generation Index</div><div class="rtools"><button type="button" class="backbtn" data-back>&#8592; Try another year</button>' + TOGGLE + '</div></div>';
+  if (other) {
+    h += '<div class="other"><div class="eyebrow">Born ' + ys + ' &middot; outside the five main generations</div><div class="genname gold">' + other.name + '</div><p>' + other.note + '</p></div>';
+  } else {
+    var color = light ? gen.color : gen.dark;
+    h += '<div class="hero"><div class="l"><div class="eyebrow">You are</div><div class="genname' + (light ? "" : " gold") + '" style="color:' + color + '">' + gen.name + '</div><div class="tag">' + gen.tag + '</div></div>' +
+      '<div class="born"><div class="eyebrow">Born</div><div class="yr">' + ys + '</div><div class="mono" style="font-size:14px">Age ' + (2026 - y) + ' in 2026</div></div></div>';
+    CH.forEach(function (c) {
+      var d = gen[c.k];
+      var deg = d.pct == null ? 0 : d.pct * 3.6;
+      var big = d.pct == null ? "n/a" : d.pct + "%";
+      var rows = c.v.map(function (v, i) {
+        var on = gen.id === IDS[i];
+        var bg = on ? color : (light ? "#9C988C" : "#5A4A22");
+        var disp = v == null ? "n/r" : (c.d && c.d[i]) || v + "%";
+        var fw = on ? 600 : 400;
+        return '<div class="row"><div class="lbl" style="font-weight:' + fw + '">' + LBL[i] + '</div><div class="trk"><div style="width:' + (v == null ? 0 : v) + '%;background:' + bg + '"></div></div><div class="val" style="font-weight:' + fw + '">' + disp + '</div></div>';
+      }).join("");
+      h += '<section class="sec"><div class="c1"><div class="num">' + c.num + '</div><h2 class="gold">' + c.title + '</h2></div>' +
+        '<div class="c2"><div class="donut" style="background:conic-gradient(' + color + ' ' + deg + 'deg, var(--track2) 0)"><div class="in">' + big + '</div></div><div class="cap">' + d.cap + '</div></div>' +
+        '<div class="c3"><div class="charttitle">' + c.t + '</div>' + rows + '<div class="src">Source: ' + c.src + '</div></div>' +
+        '<div class="c4"><div class="tags">' + d.tags.map(function (t) { return "<div>" + t + "</div>"; }).join("") + '</div><div class="take">' + d.take + '</div></div></section>';
+    });
+  }
+  h += '<footer class="refs"><div class="frow"><h2 class="gold">How to read this</h2><div class="notes">' +
+    NOTES.map(function (n) { return '<div class="note"><div class="n">' + n.num + '</div><div class="h">' + n.head + '</div><div class="b">' + n.body + '</div></div>'; }).join("") +
+    '</div></div><div class="frow"><h2 class="gold">References</h2><div class="refgroups">' +
+    REFS.map(function (g) {
+      return '<div class="rg"><div class="t">' + g.title + '</div>' + g.items.map(function (r) {
+        return '<a class="ref" href="' + r.url + '" target="_blank" rel="noopener"><span><span class="nm">' + r.name + '</span><span class="nt">' + r.note + '</span></span><span class="ar" aria-hidden="true">&#8599;</span></a>';
+      }).join("") + '</div>';
+    }).join("") + '</div></div></footer></div>';
+  return h;
+}
+
+function renderResult(ys) {
+  result.innerHTML = resultHTML(ys);
+  applyTheme();
+}
+function showResult(y) {
+  st.view = "result";
+  st.year = String(y);
+  land.hidden = true;
+  result.hidden = false;
+  renderResult(st.year);
+  var gen = GENS.filter(function (g) { return y >= g.start && y <= g.end; })[0];
+  document.title = (gen ? "You are " + (gen.id === "genx" || gen.id === "genz" || gen.id === "alpha" ? "" : "a ") + gen.name : "Born " + y) + " – Which generation are you?";
+  window.scrollTo(0, 0);
+}
+function showLand() {
+  st.view = "land";
+  arm = false; st.touched = false;
+  cancelDwell(); st.touched = false;
+  result.hidden = true; result.innerHTML = "";
+  land.hidden = false;
+  document.title = "Which generation are you?";
+  render();
+}
+function goBack() {
+  try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+  showLand();
+}
+function route() {
+  var m = /^#(\d{4})$/.exec(location.hash);
+  var y = m ? parseInt(m[1], 10) : 0;
+  if (y >= MIN && y <= MAX) { st.pos = y; render(); showResult(y); }
+  else if (st.view === "result") showLand();
+}
+window.addEventListener("hashchange", route);
+
+/* =============================== start =============================== */
+applyTheme();
+render();
+route();
+})();
+</script>
+</body>
+</html>
